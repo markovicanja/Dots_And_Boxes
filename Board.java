@@ -2,16 +2,20 @@ package etf.dotsandboxes.ma170420d;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.util.ArrayList;
+
 import javax.swing.*;
 
 public class Board extends Canvas {
 	private int m, n;
 	private boolean turn1 = true, turn2 = false;
-	private static Color blue = new Color(0, 204, 255), red = new Color(255, 0, 0);
+	private static Color blue = new Color(0, 204, 255), red = new Color(255, 0, 0), lightBlue = new Color(148, 201, 255), lightRed = new Color(255, 158, 158);
 	private static int widthHorizontal = 80, widthVertical = 20, heightHorizontal = 20, heightVertical = 80, arc = 10;
 	private static int R = 20, r = 10;
 	private static int tileWidth = 80, tileHeight = 80;
 	private static Color edgeColor = new Color(62, 118, 114), currentColor = blue;
+	private ArrayList<Edge> currentEdges = new ArrayList<>();
+	private static boolean scored = false;
 	
 	private Edge[][] horizontal, vertical;
 	private Tile[][] tiles;
@@ -44,6 +48,7 @@ public class Board extends Canvas {
 	private static class Edge {
 		private int x, y;
 		private boolean horizontal, filled = false;
+		private Color color;
 		
 		public Edge(int xx, int yy, boolean h) {
 			x = xx; y = yy; horizontal = h;
@@ -57,8 +62,9 @@ public class Board extends Canvas {
 			return filled;
 		}
 
-		public void setFilled(boolean filled) {
+		public void setFilled(boolean filled, Color color) {
 			this.filled = filled;
+			this.color = color;
 		}
 
 		public int getX() {
@@ -73,8 +79,10 @@ public class Board extends Canvas {
 			return horizontal;
 		}
 		
-		public void paintEdge(Graphics g, Color color) {
-			g.setColor(color);
+		public void paintEdge(Graphics g, boolean paintColor) {
+			if (paintColor)
+				g.setColor(color);
+			else g.setColor(edgeColor);
 			if (horizontal)
 				g.fillRoundRect(x, y, widthHorizontal, heightHorizontal, arc, arc);
 			else g.fillRoundRect(x, y, widthVertical, heightVertical, arc, arc);
@@ -106,7 +114,8 @@ public class Board extends Canvas {
 		}
 		this.addMouseListener(new MouseAdapter() {
 			public void mouseClicked(MouseEvent e) {
-				boolean scored = false;
+				if (!scored) currentEdges.clear();
+				scored = false;
 				int scoreNum = 0;
 				int x = e.getX();
 				int y = e.getY();
@@ -115,7 +124,9 @@ public class Board extends Canvas {
 					for (int j = 0; j < n + 1; j++) {
 						if (j < m && horizontal[i][j].isClicked(x, y)) {
 							found = true;
-							horizontal[i][j].setFilled(true);
+							if (turn1) horizontal[i][j].setFilled(true, lightBlue);
+							else horizontal[i][j].setFilled(true, lightRed);
+							currentEdges.add(horizontal[i][j]);
 							if (i + 1 <= m && horizontal[i + 1][j].isFilled() && vertical[i][j].isFilled() && vertical[i][j + 1].isFilled()) {
 								tiles[i][j].setColor(currentColor);
 								scored = true;
@@ -130,7 +141,9 @@ public class Board extends Canvas {
 						}
 						if (i < n && vertical[i][j].isClicked(x, y)) {
 							found = true;
-							vertical[i][j].setFilled(true);
+							if (turn1) vertical[i][j].setFilled(true, lightBlue);
+							else vertical[i][j].setFilled(true, lightRed);
+							currentEdges.add(vertical[i][j]);
 							if (j + 1 <= n && vertical[i][j + 1].isFilled() && horizontal[i][j].isFilled() && horizontal[i + 1][j].isFilled()) {
 								tiles[i][j].setColor(currentColor);
 								scored = true;
@@ -164,7 +177,6 @@ public class Board extends Canvas {
 				else if (found) {
 					if (turn1) gameplay.setScore(true, scoreNum);
 					else gameplay.setScore(false, scoreNum);
-					scored = false;
 					scoreNum = 0;
 				}
 			}
@@ -179,19 +191,16 @@ public class Board extends Canvas {
 				if (i < n && j < m && tiles[i][j].isColored()) 
 					tiles[i][j].paintTile(g);
 				if (j < m && horizontal[i][j].isFilled()) 
-					horizontal[i][j].paintEdge(g, edgeColor);
+					horizontal[i][j].paintEdge(g, false);
 				if (i < n && vertical[i][j].isFilled()) 
-					vertical[i][j].paintEdge(g, edgeColor);
+					vertical[i][j].paintEdge(g, false);
 			}
-//		for (Edge edge : currentEdges) {
-//			if (turn1) edge.paintEdge(g, blue);
-//			else edge.paintEdge(g, red);
-//		}
+		for (Edge edge : currentEdges) {
+			if (turn1) edge.paintEdge(g, true);
+			else edge.paintEdge(g, true);
+		}
 		for (int i = 0; i < n + 1; i++) {
-			for (int j = 0; j < m + 1; j++) {
-//				g.setColor(Color.lightGray);
-//				if (j < m) g.drawRoundRect(x + r, y, widthHorizontal, heightHorizontal, arc, arc);
-//				if (i < n) g.drawRoundRect(x, y + r, widthVertical, heightVertical, arc, arc);
+			for (int j = 0; j < m + 1; j++) {;
 				g.setColor(Color.gray);
 				g.fillOval(x + 2, y + 2, R, R);
 				g.setColor(Color.white);
