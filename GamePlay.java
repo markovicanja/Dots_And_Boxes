@@ -32,7 +32,7 @@ public class GamePlay extends JFrame {
 		getContentPane().add(panel, "Center");
 		panel.setBackground(new Color(184, 223, 255));
 		panel.setLayout(new BorderLayout(0, 0));
-		board = new Board(m, n, player1Label, player2Label, score1Label, score2Label);
+		board = new Board(m, n, this);
 		panel.add(board);
 		
 		JPanel northPanel = new JPanel();
@@ -63,5 +63,15 @@ public class GamePlay extends JFrame {
 		player2Label.setFont(font);
 		player2Label.setForeground(red);
 		northPanel.add(player2Label);
+	}
+	
+	public void enableLables(boolean enable1) {
+		player1Label.setEnabled(enable1);
+		player2Label.setEnabled(!enable1);
+	}
+	
+	public void setScore(boolean scored1, int num) {
+		if (scored1) score1Label.setText("" + (Integer.parseInt(score1Label.getText()) + num));
+		else score2Label.setText("" + (Integer.parseInt(score2Label.getText()) + num));
 	}
 }

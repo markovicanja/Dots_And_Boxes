@@ -6,106 +6,193 @@ import javax.swing.*;
 
 public class Board extends Canvas {
 	private int m, n;
-	private Tile[][] tiles;
-	private JLabel player1Label, player2Label, score1Label, score2Label;
 	private boolean turn1 = true, turn2 = false;
 	private static Color blue = new Color(0, 204, 255), red = new Color(255, 0, 0);
 	private static int widthHorizontal = 80, widthVertical = 20, heightHorizontal = 20, heightVertical = 80, arc = 10;
 	private static int R = 20, r = 10;
 	private static int tileWidth = 80, tileHeight = 80;
+	private static Color edgeColor = new Color(62, 118, 114), currentColor = blue;
 	
-	public static class Tile {
-		boolean right, left, up, down;
-		int numberOfSetEdges = 0;
+	private Edge[][] horizontal, vertical;
+	private Tile[][] tiles;
+	
+	private static class Tile {
+		private Color color;
+		private boolean isColored = false;
+		private int x, y;
 		
-		public Tile() {
-			right = left = up = down = false;
+		public Tile(int x, int y) {
+			this.x = x;
+			this.y = y;
+		}
+
+		public boolean isColored() {
+			return isColored;
+		}
+
+		public void setColor(Color color) {
+			this.color = color; 
+			isColored = true;
 		}
 		
-		public int numberOfSetEdges() {
-			return numberOfSetEdges;
-		}
-
-		public boolean isRight() {
-			return right;
-		}
-
-		public void setRight(boolean right) {
-			this.right = right;
-			numberOfSetEdges++;
-		}
-
-		public boolean isLeft() {
-			return left;
-		}
-
-		public void setLeft(boolean left) {
-			this.left = left;
-			numberOfSetEdges++;
-		}
-
-		public boolean isUp() {
-			return up;
-		}
-
-		public void setUp(boolean up) {
-			this.up = up;
-			numberOfSetEdges++;
-		}
-
-		public boolean isDown() {
-			return down;
-		}
-
-		public void setDown(boolean down) {
-			this.down = down;
-			numberOfSetEdges++;
+		public void paintTile(Graphics g) {
+			g.setColor(color);
+			g.fillRect(x + 10, y + 10, widthHorizontal - 10, heightVertical - 10);
 		}
 	}
 	
-	public Board(int m, int n, JLabel p1l, JLabel p2l, JLabel s1l, JLabel s2l) {
+	private static class Edge {
+		private int x, y;
+		private boolean horizontal, filled = false;
+		
+		public Edge(int xx, int yy, boolean h) {
+			x = xx; y = yy; horizontal = h;
+		}	
+		
+		public void fillEdge() {
+			filled = true;
+		}
+
+		public boolean isFilled() {
+			return filled;
+		}
+
+		public void setFilled(boolean filled) {
+			this.filled = filled;
+		}
+
+		public int getX() {
+			return x;
+		}
+
+		public int getY() {
+			return y;
+		}
+
+		public boolean isHorizontal() {
+			return horizontal;
+		}
+		
+		public void paintEdge(Graphics g, Color color) {
+			g.setColor(color);
+			if (horizontal)
+				g.fillRoundRect(x, y, widthHorizontal, heightHorizontal, arc, arc);
+			else g.fillRoundRect(x, y, widthVertical, heightVertical, arc, arc);
+		}
+		
+		public boolean isClicked(int i, int j) {
+			if (horizontal && i >= x && i <= x + widthHorizontal && j >= y && j <= y + heightHorizontal) return true;
+			if (!horizontal && i >= x && i <= x + widthVertical && j >= y && j <= y + heightVertical) return true;
+			return false;
+		}
+	}
+	
+	public Board(int m, int n, GamePlay gameplay) {
 		this.m = m; 
 		this.n = n;
-		player1Label = p1l;
-		player2Label = p2l;
-		score1Label = s1l;
-		score2Label = s2l;
+		int d = 10;
+		int x = d, y = d, dx = 80, dy = 80;
+		horizontal = new Edge[m + 1][n];
+		vertical = new Edge[m][n + 1];
 		tiles = new Tile[m][n];
-		for (int i = 0; i < m; i++) 
-			for (int j = 0; j < n; j++) {
-				tiles[i][j] = new Tile();
-			}
+		for (int i = 0; i < n + 1; i++) { 
+			for (int j = 0; j < m + 1; j++) {
+				if (j < m) horizontal[i][j] = new Edge(x + r, y, true);
+				if (i < n) vertical[i][j] = new Edge(x, y + r, false);
+				if (j < m && i < n) tiles[i][j] = new Tile(x, y);
+				x += dx;
+			}	
+			y += dy; x = d;
+		}
 		this.addMouseListener(new MouseAdapter() {
 			public void mouseClicked(MouseEvent e) {
+				boolean scored = false;
+				int scoreNum = 0;
 				int x = e.getX();
 				int y = e.getY();
-				
+				boolean found = false;
+				for (int i = 0; i < m + 1; i++) {
+					for (int j = 0; j < n + 1; j++) {
+						if (j < m && horizontal[i][j].isClicked(x, y)) {
+							found = true;
+							horizontal[i][j].setFilled(true);
+							if (i + 1 <= m && horizontal[i + 1][j].isFilled() && vertical[i][j].isFilled() && vertical[i][j + 1].isFilled()) {
+								tiles[i][j].setColor(currentColor);
+								scored = true;
+								scoreNum++;
+							}
+							if (i - 1 >= 0 && horizontal[i - 1][j].isFilled() && vertical[i - 1][j].isFilled() && vertical[i - 1][j + 1].isFilled()) {
+								tiles[i - 1][j].setColor(currentColor);
+								scored = true;
+								scoreNum++;
+							}
+							break;
+						}
+						if (i < n && vertical[i][j].isClicked(x, y)) {
+							found = true;
+							vertical[i][j].setFilled(true);
+							if (j + 1 <= n && vertical[i][j + 1].isFilled() && horizontal[i][j].isFilled() && horizontal[i + 1][j].isFilled()) {
+								tiles[i][j].setColor(currentColor);
+								scored = true;
+								scoreNum++;
+							}
+							if (j - 1 >= 0 && vertical[i][j - 1].isFilled() && horizontal[i][j - 1].isFilled() && horizontal[i + 1][j - 1].isFilled()) {
+								tiles[i][j - 1].setColor(currentColor);
+								scored = true;
+								scoreNum++;
+							}
+							break;
+						}
+					}
+					if (found) {
+						repaint();
+						break;
+					}
+				}
+				if (!scored && found) {
+					if (turn1) {
+						currentColor = red;
+						gameplay.enableLables(false);
+					}
+					else {
+						currentColor = blue;
+						gameplay.enableLables(true);
+					}
+					turn1 = !turn1;
+					turn2 = !turn2;
+				}		
+				else if (found) {
+					if (turn1) gameplay.setScore(true, scoreNum);
+					else gameplay.setScore(false, scoreNum);
+					scored = false;
+					scoreNum = 0;
+				}
 			}
 		});
-	}
-	
-	public boolean fillEdge(Color c, int x, int y) {
-		return true;
-	}
-
-	public void fillEdges(Graphics g, int x, int y) {
-		
-	}
-	
-	public void fillTiles(Graphics g, int x, int y) {
-		
 	}
 	
 	public void paint(Graphics g) {
 		int d = 10;
 		int x = d, y = d, dx = 80, dy = 80;
+		for (int i = 0; i < n + 1; i++)
+			for (int j = 0; j < m + 1; j++) {
+				if (i < n && j < m && tiles[i][j].isColored()) 
+					tiles[i][j].paintTile(g);
+				if (j < m && horizontal[i][j].isFilled()) 
+					horizontal[i][j].paintEdge(g, edgeColor);
+				if (i < n && vertical[i][j].isFilled()) 
+					vertical[i][j].paintEdge(g, edgeColor);
+			}
+//		for (Edge edge : currentEdges) {
+//			if (turn1) edge.paintEdge(g, blue);
+//			else edge.paintEdge(g, red);
+//		}
 		for (int i = 0; i < n + 1; i++) {
 			for (int j = 0; j < m + 1; j++) {
-				g.setColor(Color.lightGray);
-				if (j < m) g.drawRoundRect(x + r, y, widthHorizontal, heightHorizontal, arc, arc);
-				if (i < n) g.drawRoundRect(x, y + r, widthVertical, heightVertical, arc, arc);
-				fillTiles(g, x, y);
-				fillEdges(g, x, y);
+//				g.setColor(Color.lightGray);
+//				if (j < m) g.drawRoundRect(x + r, y, widthHorizontal, heightHorizontal, arc, arc);
+//				if (i < n) g.drawRoundRect(x, y + r, widthVertical, heightVertical, arc, arc);
+				g.setColor(Color.gray);
 				g.fillOval(x + 2, y + 2, R, R);
 				g.setColor(Color.white);
 				g.fillOval(x, y, R, R);
