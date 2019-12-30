@@ -237,7 +237,7 @@ public class Main extends JFrame implements ActionListener {
 		contentPane.add(pathLabel, gbc_pathLabel);
 		
 		pathText = new JTextField();
-		pathText.setText("");
+		pathText.setText("C:\\Users\\Anja\\eclipse-workspace\\DotsAndBoxes\\src\\etf\\dotsandboxes\\ma170420d\\Test.txt");
 		GridBagConstraints gbc_pathText = new GridBagConstraints();
 		gbc_pathText.insets = new Insets(0, 0, 5, 5);
 		gbc_pathText.fill = GridBagConstraints.HORIZONTAL;
@@ -265,8 +265,15 @@ public class Main extends JFrame implements ActionListener {
 		String difficulty1 = choice1.getSelectedItem();
 		String difficulty2 = choice2.getSelectedItem();
 		
-//		System.out.println(player1+" "+player2+" "+difficulty1+" "+difficulty2);
-		new GamePlay(m, n, player1, player2, difficulty1, difficulty2);
+		String path = pathText.getText();
+		FileRead fr = null;
+		if (!path.equals("")) {
+			fr = new FileRead(path);
+			boolean ok = fr.read();
+			if (!ok) return;
+		}
+		
+		new GamePlay(m, n, player1, player2, difficulty1, difficulty2, fr);
 		this.setVisible(false);
 	}
 	

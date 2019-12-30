@@ -10,11 +10,13 @@ public class GamePlay extends JFrame {
 	private static Color blue = new Color(0, 204, 255), red = new Color(255, 0, 0);
 	private Board board;  
 	private JLabel player1Label, player2Label, score1Label, score2Label;
+	private FileRead fileReader;
 	
-	public GamePlay(int m, int n, String player1, String player2, String diff1, String diff2) {
+	public GamePlay(int m, int n, String player1, String player2, String diff1, String diff2, FileRead fr) {
 		super("Dots and boxes");
-		this.m=m; 
-		this.n=n;
+		this.m = m; 
+		this.n = n;
+		fileReader = fr;
 		setSize((m + 1) * 100 + 20, (n + 1) * 100);
 		this.setLocationRelativeTo(null);
 		addComponents();
