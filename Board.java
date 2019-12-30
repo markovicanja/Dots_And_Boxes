@@ -15,7 +15,7 @@ public class Board extends Canvas {
 	private static int tileWidth = 80, tileHeight = 80;
 	private static Color edgeColor = new Color(62, 118, 114), currentColor = blue;
 	private ArrayList<Edge> currentEdges = new ArrayList<>();
-	private static boolean scored = false;
+	private static boolean scored = false, lastScored = false;
 	
 	private Edge[][] horizontal, vertical;
 	private Tile[][] tiles;
@@ -103,18 +103,18 @@ public class Board extends Canvas {
 		horizontal = new Edge[m + 1][n];
 		vertical = new Edge[m][n + 1];
 		tiles = new Tile[m][n];
-		for (int i = 0; i < n + 1; i++) { 
-			for (int j = 0; j < m + 1; j++) {
-				if (j < m) horizontal[i][j] = new Edge(x + r, y, true);
-				if (i < n) vertical[i][j] = new Edge(x, y + r, false);
-				if (j < m && i < n) tiles[i][j] = new Tile(x, y);
+		for (int i = 0; i < m + 1; i++) { 
+			for (int j = 0; j < n + 1; j++) {
+				if (j < n) horizontal[i][j] = new Edge(x + r, y, true);
+				if (i < m) vertical[i][j] = new Edge(x, y + r, false);
+				if (i < m && j < n) tiles[i][j] = new Tile(x, y);
 				x += dx;
 			}	
 			y += dy; x = d;
 		}
 		this.addMouseListener(new MouseAdapter() {
 			public void mouseClicked(MouseEvent e) {
-				if (!scored) currentEdges.clear();
+				if (!lastScored) currentEdges.clear();
 				scored = false;
 				int scoreNum = 0;
 				int x = e.getX();
@@ -122,8 +122,9 @@ public class Board extends Canvas {
 				boolean found = false;
 				for (int i = 0; i < m + 1; i++) {
 					for (int j = 0; j < n + 1; j++) {
-						if (j < m && horizontal[i][j].isClicked(x, y)) {
+						if (j < n && horizontal[i][j].isClicked(x, y)) {
 							found = true;
+							if (horizontal[i][j].isFilled()) return;
 							if (turn1) horizontal[i][j].setFilled(true, lightBlue);
 							else horizontal[i][j].setFilled(true, lightRed);
 							currentEdges.add(horizontal[i][j]);
@@ -139,14 +140,15 @@ public class Board extends Canvas {
 							}
 							break;
 						}
-						if (i < n && vertical[i][j].isClicked(x, y)) {
+						if (i < m && vertical[i][j].isClicked(x, y)) {
 							found = true;
+							if (vertical[i][j].isFilled()) return;
 							if (turn1) vertical[i][j].setFilled(true, lightBlue);
 							else vertical[i][j].setFilled(true, lightRed);
 							currentEdges.add(vertical[i][j]);
 							if (j + 1 <= n && vertical[i][j + 1].isFilled() && horizontal[i][j].isFilled() && horizontal[i + 1][j].isFilled()) {
 								tiles[i][j].setColor(currentColor);
-								scored = true;
+								scored = true; 
 								scoreNum++;
 							}
 							if (j - 1 >= 0 && vertical[i][j - 1].isFilled() && horizontal[i][j - 1].isFilled() && horizontal[i + 1][j - 1].isFilled()) {
@@ -159,6 +161,7 @@ public class Board extends Canvas {
 					}
 					if (found) {
 						repaint();
+						lastScored = scored;
 						break;
 					}
 				}
@@ -186,21 +189,21 @@ public class Board extends Canvas {
 	public void paint(Graphics g) {
 		int d = 10;
 		int x = d, y = d, dx = 80, dy = 80;
-		for (int i = 0; i < n + 1; i++)
-			for (int j = 0; j < m + 1; j++) {
-				if (i < n && j < m && tiles[i][j].isColored()) 
+		for (int i = 0; i < m + 1; i++)
+			for (int j = 0; j < n + 1; j++) {
+				if (i < m && j < n && tiles[i][j].isColored()) 
 					tiles[i][j].paintTile(g);
-				if (j < m && horizontal[i][j].isFilled()) 
+				if (j < n && horizontal[i][j].isFilled()) 
 					horizontal[i][j].paintEdge(g, false);
-				if (i < n && vertical[i][j].isFilled()) 
+				if (i < m && vertical[i][j].isFilled()) 
 					vertical[i][j].paintEdge(g, false);
 			}
 		for (Edge edge : currentEdges) {
 			if (turn1) edge.paintEdge(g, true);
 			else edge.paintEdge(g, true);
 		}
-		for (int i = 0; i < n + 1; i++) {
-			for (int j = 0; j < m + 1; j++) {;
+		for (int i = 0; i < m + 1; i++) {
+			for (int j = 0; j < n + 1; j++) {;
 				g.setColor(Color.gray);
 				g.fillOval(x + 2, y + 2, R, R);
 				g.setColor(Color.white);

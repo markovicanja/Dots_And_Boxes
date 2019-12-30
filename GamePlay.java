@@ -71,7 +71,17 @@ public class GamePlay extends JFrame {
 	}
 	
 	public void setScore(boolean scored1, int num) {
-		if (scored1) score1Label.setText("" + (Integer.parseInt(score1Label.getText()) + num));
-		else score2Label.setText("" + (Integer.parseInt(score2Label.getText()) + num));
+		int score1 = Integer.parseInt(score1Label.getText());
+		int score2 = Integer.parseInt(score2Label.getText());
+		int winner = 0;
+		if (scored1) score1Label.setText("" + (score1 += num));
+		else score2Label.setText("" + (score2 += num));
+		
+		if (score1 + score2 == m * n) {
+			if (score1 > score2) winner = 1;
+			else if (score2 > score1) winner = 2;
+			new EndWindow(winner);
+			this.dispose();
+		}
 	}
 }

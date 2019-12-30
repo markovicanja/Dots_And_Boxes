@@ -28,6 +28,7 @@ import java.awt.Choice;
 import javax.swing.JButton;
 import java.awt.Toolkit;
 import java.awt.event.*;
+import javax.swing.JTextField;
 
 public class Main extends JFrame implements ActionListener {
 
@@ -36,11 +37,14 @@ public class Main extends JFrame implements ActionListener {
 	private JList list1, list2;
 	private Choice choice1, choice2;
 	private static Font font = new Font("Algerian", Font.PLAIN, 15);
+	private JTextField pathText;
+	private JTextField depthText;
 
 	public Main() {
 		setTitle("Dots and Boxes");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setSize(1000,550);
+		setSize(1000,700);
+//		setSize(1000,700);
 		this.setLocationRelativeTo(null);
 		JPanel mainPanel = new JPanel();
 		mainPanel.setLayout(new BorderLayout());
@@ -49,10 +53,10 @@ public class Main extends JFrame implements ActionListener {
 		setContentPane(mainPanel);
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		GridBagLayout gbl_contentPane = new GridBagLayout();
-		gbl_contentPane.columnWidths = new int[]{0, 0, 0, 0, 0, 0, 0};
-		gbl_contentPane.rowHeights = new int[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-		gbl_contentPane.columnWeights = new double[]{0.0, 0.0, 1.0, 1.0, 0.0, 1.0, Double.MIN_VALUE};
-		gbl_contentPane.rowWeights = new double[]{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0, Double.MIN_VALUE};
+		gbl_contentPane.columnWidths = new int[]{0, 0, 0, 0, 0, 0, 0, 0};
+		gbl_contentPane.rowHeights = new int[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+		gbl_contentPane.columnWeights = new double[]{0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 1.0, Double.MIN_VALUE};
+		gbl_contentPane.rowWeights = new double[]{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0, Double.MIN_VALUE};
 		contentPane.setLayout(gbl_contentPane);
 		
 		JLabel imageLabel = new JLabel(new ImageIcon(getClass().getResource("DBimage.jpg")));
@@ -79,7 +83,7 @@ public class Main extends JFrame implements ActionListener {
 		JLabel gridSizeLabel = new JLabel("Grid size");
 		gridSizeLabel.setFont(font);
 		GridBagConstraints gbc_gridSizeLabel = new GridBagConstraints();
-		gbc_gridSizeLabel.anchor = GridBagConstraints.WEST;
+		gbc_gridSizeLabel.anchor = GridBagConstraints.EAST;
 		gbc_gridSizeLabel.insets = new Insets(0, 0, 5, 5);
 		gbc_gridSizeLabel.gridx = 1;
 		gbc_gridSizeLabel.gridy = 3;
@@ -119,6 +123,7 @@ public class Main extends JFrame implements ActionListener {
 		JLabel lblPlayer1 = new JLabel("Player 1");
 		lblPlayer1.setFont(font);
 		GridBagConstraints gbc_lblPlayer1 = new GridBagConstraints();
+		gbc_lblPlayer1.anchor = GridBagConstraints.EAST;
 		gbc_lblPlayer1.insets = new Insets(0, 0, 5, 5);
 		gbc_lblPlayer1.gridx = 1;
 		gbc_lblPlayer1.gridy = 5;
@@ -149,7 +154,9 @@ public class Main extends JFrame implements ActionListener {
 		choice1 = new Choice();
 		choice1.setFont(font);
 		choice1.setBackground(UIManager.getColor("InternalFrame.borderColor"));
-		choice1.add("Easy"); choice1.add("Medium"); choice1.add("Hard"); 
+		choice1.add("Easy"); 
+		choice1.add("Medium"); 
+		choice1.add("Hard"); 
 		GridBagConstraints gbc_choice1 = new GridBagConstraints();
 		gbc_choice1.insets = new Insets(0, 0, 5, 5);
 		gbc_choice1.gridx = 3;
@@ -159,6 +166,7 @@ public class Main extends JFrame implements ActionListener {
 		JLabel lblPlayer2 = new JLabel("Player 2");
 		lblPlayer2.setFont(font);
 		GridBagConstraints gbc_lblPlayer2 = new GridBagConstraints();
+		gbc_lblPlayer2.anchor = GridBagConstraints.EAST;
 		gbc_lblPlayer2.insets = new Insets(0, 0, 5, 5);
 		gbc_lblPlayer2.gridx = 1;
 		gbc_lblPlayer2.gridy = 6;
@@ -186,18 +194,57 @@ public class Main extends JFrame implements ActionListener {
 		gbc_list2.gridy = 6;
 		contentPane.add(list2, gbc_list2);
 		
+		JButton startButton = new JButton("Start");
+		startButton.addActionListener(this);
+		
 		choice2 = new Choice();
 		choice2.setFont(font);
 		choice2.setBackground(UIManager.getColor("InternalFrame.borderColor"));
-		choice2.add("Easy"); choice2.add("Medium"); choice2.add("Hard");
+		choice2.add("Easy"); 
+		choice2.add("Medium"); 
+		choice2.add("Hard");
 		GridBagConstraints gbc_choice2 = new GridBagConstraints();
 		gbc_choice2.insets = new Insets(0, 0, 5, 5);
 		gbc_choice2.gridx = 3;
 		gbc_choice2.gridy = 6;
 		contentPane.add(choice2, gbc_choice2);
 		
-		JButton startButton = new JButton("Start");
-		startButton.addActionListener(this);
+		JLabel depthLabel = new JLabel("Depth of tree:");
+		depthLabel.setFont(font);
+		GridBagConstraints gbc_depthLabel = new GridBagConstraints();
+		gbc_depthLabel.anchor = GridBagConstraints.EAST;
+		gbc_depthLabel.insets = new Insets(0, 0, 5, 5);
+		gbc_depthLabel.gridx = 1;
+		gbc_depthLabel.gridy = 8;
+		contentPane.add(depthLabel, gbc_depthLabel);
+		
+		depthText = new JTextField();
+		GridBagConstraints gbc_depthText = new GridBagConstraints();
+		gbc_depthText.anchor = GridBagConstraints.NORTHWEST;
+		gbc_depthText.insets = new Insets(0, 0, 5, 5);
+		gbc_depthText.gridx = 2;
+		gbc_depthText.gridy = 8;
+		contentPane.add(depthText, gbc_depthText);
+		depthText.setColumns(30);
+		
+		JLabel pathLabel = new JLabel("File path:");
+		pathLabel.setFont(font);
+		GridBagConstraints gbc_pathLabel = new GridBagConstraints();
+		gbc_pathLabel.anchor = GridBagConstraints.EAST;
+		gbc_pathLabel.insets = new Insets(0, 0, 5, 5);
+		gbc_pathLabel.gridx = 1;
+		gbc_pathLabel.gridy = 10;
+		contentPane.add(pathLabel, gbc_pathLabel);
+		
+		pathText = new JTextField();
+		pathText.setText("");
+		GridBagConstraints gbc_pathText = new GridBagConstraints();
+		gbc_pathText.insets = new Insets(0, 0, 5, 5);
+		gbc_pathText.fill = GridBagConstraints.HORIZONTAL;
+		gbc_pathText.gridx = 2;
+		gbc_pathText.gridy = 10;
+		contentPane.add(pathText, gbc_pathText);
+		pathText.setColumns(30);
 		startButton.setForeground(UIManager.getColor("Button.foreground"));
 		startButton.setBackground(UIManager.getColor("Button.background"));
 		startButton.setFont(font);
@@ -205,7 +252,7 @@ public class Main extends JFrame implements ActionListener {
 		gbc_startButton.anchor = GridBagConstraints.NORTH;
 		gbc_startButton.insets = new Insets(0, 0, 5, 5);
 		gbc_startButton.gridx = 1;
-		gbc_startButton.gridy = 10;
+		gbc_startButton.gridy = 11;
 		contentPane.add(startButton, gbc_startButton);
 	}
 	
