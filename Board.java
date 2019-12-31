@@ -16,6 +16,7 @@ public class Board extends Canvas {
 	private static Color edgeColor = new Color(62, 118, 114), currentColor = blue;
 	private ArrayList<Edge> currentEdges = new ArrayList<>();
 	private static boolean scored = false, lastScored = false;
+	private GamePlay gamePlay;
 	
 	private Edge[][] horizontal, vertical;
 	private Tile[][] tiles;
@@ -45,7 +46,7 @@ public class Board extends Canvas {
 		}
 	}
 	
-	private static class Edge {
+	public static class Edge {
 		private int x, y;
 		private boolean horizontal, filled = false;
 		private Color color;
@@ -100,6 +101,7 @@ public class Board extends Canvas {
 		this.n = n;
 		int d = 10;
 		int x = d, y = d, dx = 80, dy = 80;
+		gamePlay = gameplay;
 		horizontal = new Edge[m + 1][n];
 		vertical = new Edge[m][n + 1];
 		tiles = new Tile[m][n];
@@ -112,78 +114,91 @@ public class Board extends Canvas {
 			}	
 			y += dy; x = d;
 		}
+		if (gamePlay.getFileReader() != null) gamePlay.getFileReader().makeHashMap(horizontal, vertical);
 		this.addMouseListener(new MouseAdapter() {
 			public void mouseClicked(MouseEvent e) {
-				if (!lastScored) currentEdges.clear();
-				scored = false;
-				int scoreNum = 0;
 				int x = e.getX();
 				int y = e.getY();
 				boolean found = false;
-				for (int i = 0; i < m + 1; i++) {
-					for (int j = 0; j < n + 1; j++) {
+				Edge edge = null;
+				int i = 0, j = 0;
+				for (i = 0; i < m + 1; i++) {
+					for (j = 0; j < n + 1; j++) {
 						if (j < n && horizontal[i][j].isClicked(x, y)) {
 							found = true;
-							if (horizontal[i][j].isFilled()) return;
-							if (turn1) horizontal[i][j].setFilled(true, lightBlue);
-							else horizontal[i][j].setFilled(true, lightRed);
-							currentEdges.add(horizontal[i][j]);
-							if (i + 1 <= m && horizontal[i + 1][j].isFilled() && vertical[i][j].isFilled() && vertical[i][j + 1].isFilled()) {
-								tiles[i][j].setColor(currentColor);
-								scored = true;
-								scoreNum++;
-							}
-							if (i - 1 >= 0 && horizontal[i - 1][j].isFilled() && vertical[i - 1][j].isFilled() && vertical[i - 1][j + 1].isFilled()) {
-								tiles[i - 1][j].setColor(currentColor);
-								scored = true;
-								scoreNum++;
-							}
+							edge = horizontal[i][j];
 							break;
 						}
 						if (i < m && vertical[i][j].isClicked(x, y)) {
 							found = true;
-							if (vertical[i][j].isFilled()) return;
-							if (turn1) vertical[i][j].setFilled(true, lightBlue);
-							else vertical[i][j].setFilled(true, lightRed);
-							currentEdges.add(vertical[i][j]);
-							if (j + 1 <= n && vertical[i][j + 1].isFilled() && horizontal[i][j].isFilled() && horizontal[i + 1][j].isFilled()) {
-								tiles[i][j].setColor(currentColor);
-								scored = true; 
-								scoreNum++;
-							}
-							if (j - 1 >= 0 && vertical[i][j - 1].isFilled() && horizontal[i][j - 1].isFilled() && horizontal[i + 1][j - 1].isFilled()) {
-								tiles[i][j - 1].setColor(currentColor);
-								scored = true;
-								scoreNum++;
-							}
+							edge = vertical[i][j];
 							break;
 						}
 					}
 					if (found) {
 						repaint();
-						lastScored = scored;
+						makeMove(edge, i, j);
 						break;
 					}
 				}
-				if (!scored && found) {
-					if (turn1) {
-						currentColor = red;
-						gameplay.enableLables(false);
-					}
-					else {
-						currentColor = blue;
-						gameplay.enableLables(true);
-					}
-					turn1 = !turn1;
-					turn2 = !turn2;
-				}		
-				else if (found) {
-					if (turn1) gameplay.setScore(true, scoreNum);
-					else gameplay.setScore(false, scoreNum);
-					scoreNum = 0;
-				}
 			}
 		});
+	}
+	
+	public int colorTile(Edge edge, int i, int j) {
+		int scoreNum = 0;
+		if (edge.isHorizontal()) {
+			if (i + 1 <= m && horizontal[i + 1][j].isFilled() && vertical[i][j].isFilled() && vertical[i][j + 1].isFilled()) {
+				tiles[i][j].setColor(currentColor);
+				scored = true;
+				scoreNum++;
+			}
+			if (i - 1 >= 0 && horizontal[i - 1][j].isFilled() && vertical[i - 1][j].isFilled() && vertical[i - 1][j + 1].isFilled()) {
+				tiles[i - 1][j].setColor(currentColor);
+				scored = true;
+				scoreNum++;
+			}
+		}
+		else {
+			if (j + 1 <= n && vertical[i][j + 1].isFilled() && horizontal[i][j].isFilled() && horizontal[i + 1][j].isFilled()) {
+				tiles[i][j].setColor(currentColor);
+				scored = true; 
+				scoreNum++;
+			}
+			if (j - 1 >= 0 && vertical[i][j - 1].isFilled() && horizontal[i][j - 1].isFilled() && horizontal[i + 1][j - 1].isFilled()) {
+				tiles[i][j - 1].setColor(currentColor);
+				scored = true;
+				scoreNum++;
+			}
+		}
+		return scoreNum;
+	}	
+	
+	public void makeMove(Edge edge, int i, int j) {
+		if (!lastScored) currentEdges.clear();
+		scored = false;
+		int scoreNum = 0;
+		if (edge.isFilled()) return;
+		if (turn1) edge.setFilled(true, lightBlue);
+		else edge.setFilled(true, lightRed);
+		currentEdges.add(edge);
+		scoreNum = colorTile(edge, i, j);	
+		lastScored = scored;
+		if (!scored) {
+			if (turn1) {
+				currentColor = red;
+				gamePlay.enableLables(false);
+			}
+			else {
+				currentColor = blue;
+				gamePlay.enableLables(true);
+			}
+			turn1 = !turn1;
+			turn2 = !turn2;
+		}		
+		if (turn1) gamePlay.setScore(true, scoreNum);
+		else gamePlay.setScore(false, scoreNum);
+//		scoreNum = 0;
 	}
 	
 	public void paint(Graphics g) {

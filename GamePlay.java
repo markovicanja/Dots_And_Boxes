@@ -16,7 +16,11 @@ public class GamePlay extends JFrame {
 		super("Dots and boxes");
 		this.m = m; 
 		this.n = n;
-		fileReader = fr;
+		if (fr != null) {
+			fileReader = fr;
+			this.m = fr.getM();
+			this.n = fr.getN();
+		}
 		setSize((m + 1) * 100 + 20, (n + 1) * 100);
 		this.setLocationRelativeTo(null);
 		addComponents();
@@ -67,6 +71,10 @@ public class GamePlay extends JFrame {
 		northPanel.add(player2Label);
 	}
 	
+	public FileRead getFileReader() {
+		return fileReader;
+	}
+	
 	public void enableLables(boolean enable1) {
 		player1Label.setEnabled(enable1);
 		player2Label.setEnabled(!enable1);
@@ -83,7 +91,7 @@ public class GamePlay extends JFrame {
 			if (score1 > score2) winner = 1;
 			else if (score2 > score1) winner = 2;
 			new EndWindow(winner);
-			this.dispose();
+			this.setVisible(false);
 		}
 	}
 }

@@ -6,11 +6,16 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+import etf.dotsandboxes.ma170420d.Board.Edge;
 
 public class FileRead {
 	private String directory;
 	private int m, n;
 	private ArrayList<String> moves = new ArrayList<>(); 
+	public Map<String, Edge> hashMap = new HashMap<>();
 	
 	public FileRead(String directory) {
 		this.directory = directory;
@@ -64,5 +69,23 @@ public class FileRead {
 
 	public ArrayList<String> getMoves() {
 		return moves;
+	}
+	
+	public void makeHashMap(Edge[][] horizontal, Edge[][] vertical) {
+		String[] letters = {"A", "B", "C", "D", "E", "F", "G", "H", "I"};
+		for (int i = 0; i < m + 1; i++) {
+			for (int j = 0; j < n + 1; j++) {
+				if (j < n) {
+					String key = "" + i + letters[j];
+					hashMap.put(key, horizontal[i][j]);
+					System.out.println(key+" horizontal "+i+" "+j);
+				}
+				if (i < m) {
+					String key = letters[i] + j;
+					hashMap.put(key, vertical[i][j]);
+					System.out.println(key+" vertical "+i+" "+j);
+				}
+			}
+		}
 	}
 }
