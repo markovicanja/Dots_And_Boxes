@@ -2,7 +2,9 @@ package etf.dotsandboxes.ma170420d;
 
 import java.awt.*;
 import javax.swing.*;
+import etf.dotsandboxes.ma170420d.FileIO.Pair;
 import java.awt.event.*;
+import java.util.ArrayList;
 
 public class GamePlay extends JFrame {
 	private int m, n;
@@ -10,20 +12,28 @@ public class GamePlay extends JFrame {
 	private static Color blue = new Color(0, 204, 255), red = new Color(255, 0, 0);
 	private Board board;  
 	private JLabel player1Label, player2Label, score1Label, score2Label;
-	private FileRead fileReader;
+	private FileIO fileIO;
 	
-	public GamePlay(int m, int n, String player1, String player2, String diff1, String diff2, FileRead fr) {
+	public GamePlay(int m, int n, String player1, String player2, String diff1, String diff2, FileIO fileio) {
 		super("Dots and boxes");
 		this.m = m; 
 		this.n = n;
-		if (fr != null) {
-			fileReader = fr;
-			this.m = fr.getM();
-			this.n = fr.getN();
+		fileIO = fileio;
+		if (!fileIO.getReadDirectory().equals("")) {
+			this.m = fileIO.getM();
+			this.n = fileIO.getN();
 		}
-		setSize((m + 1) * 100 + 20, (n + 1) * 100);
+		setSize((this.m + 1) * 100 + 20, (this.n + 1) * 100);
 		this.setLocationRelativeTo(null);
 		addComponents();
+		fileIO.write(""+this.m+" "+this.n);
+		if (!fileIO.getReadDirectory().equals("")) {
+			ArrayList<String> moves = fileIO.getMoves();
+			for (String move : moves) {
+				Pair pair =  fileIO.hashMap.get(move);
+				board.makeMove(pair.getEdge(), pair.getI(), pair.getJ());
+			}
+		}
 		setVisible(true);
 //		if (player1.equals("Human") && player2.equals("Human")) ako nijedan nije human zabrani misa
 		addWindowListener(new WindowAdapter() {
@@ -71,8 +81,8 @@ public class GamePlay extends JFrame {
 		northPanel.add(player2Label);
 	}
 	
-	public FileRead getFileReader() {
-		return fileReader;
+	public FileIO getFileIO() {
+		return fileIO;
 	}
 	
 	public void enableLables(boolean enable1) {

@@ -2,9 +2,6 @@ package etf.dotsandboxes.ma170420d;
 
 import java.awt.*;
 import java.awt.event.*;
-import java.util.ArrayList;
-
-import javax.swing.*;
 
 public class Board extends Canvas {
 	private int m, n;
@@ -12,10 +9,10 @@ public class Board extends Canvas {
 	private static Color blue = new Color(0, 204, 255), red = new Color(255, 0, 0), lightBlue = new Color(148, 201, 255), lightRed = new Color(255, 158, 158);
 	private static int widthHorizontal = 80, widthVertical = 20, heightHorizontal = 20, heightVertical = 80, arc = 10;
 	private static int R = 20, r = 10;
-	private static int tileWidth = 80, tileHeight = 80;
+	private static int tileWidth = 70, tileHeight = 70;
 	private static Color edgeColor = new Color(62, 118, 114), currentColor = blue;
-	private ArrayList<Edge> currentEdges = new ArrayList<>();
-	private static boolean scored = false, lastScored = false;
+	private Edge currentEdge = null;
+	private static boolean scored = false;
 	private GamePlay gamePlay;
 	
 	private Edge[][] horizontal, vertical;
@@ -42,7 +39,7 @@ public class Board extends Canvas {
 		
 		public void paintTile(Graphics g) {
 			g.setColor(color);
-			g.fillRect(x + 10, y + 10, widthHorizontal - 10, heightVertical - 10);
+			g.fillRect(x + 10, y + 10, tileWidth, tileHeight);
 		}
 	}
 	
@@ -114,7 +111,7 @@ public class Board extends Canvas {
 			}	
 			y += dy; x = d;
 		}
-		if (gamePlay.getFileReader() != null) gamePlay.getFileReader().makeHashMap(horizontal, vertical);
+		if (gamePlay.getFileIO() != null) gamePlay.getFileIO().makeHashMap(horizontal, vertical);
 		this.addMouseListener(new MouseAdapter() {
 			public void mouseClicked(MouseEvent e) {
 				int x = e.getX();
@@ -175,15 +172,14 @@ public class Board extends Canvas {
 	}	
 	
 	public void makeMove(Edge edge, int i, int j) {
-		if (!lastScored) currentEdges.clear();
 		scored = false;
 		int scoreNum = 0;
 		if (edge.isFilled()) return;
 		if (turn1) edge.setFilled(true, lightBlue);
 		else edge.setFilled(true, lightRed);
-		currentEdges.add(edge);
-		scoreNum = colorTile(edge, i, j);	
-		lastScored = scored;
+		currentEdge = edge;
+		gamePlay.getFileIO().write(gamePlay.getFileIO().toStringMap.get(edge));
+		scoreNum = colorTile(edge, i, j);
 		if (!scored) {
 			if (turn1) {
 				currentColor = red;
@@ -198,7 +194,6 @@ public class Board extends Canvas {
 		}		
 		if (turn1) gamePlay.setScore(true, scoreNum);
 		else gamePlay.setScore(false, scoreNum);
-//		scoreNum = 0;
 	}
 	
 	public void paint(Graphics g) {
@@ -213,10 +208,8 @@ public class Board extends Canvas {
 				if (i < m && vertical[i][j].isFilled()) 
 					vertical[i][j].paintEdge(g, false);
 			}
-		for (Edge edge : currentEdges) {
-			if (turn1) edge.paintEdge(g, true);
-			else edge.paintEdge(g, true);
-		}
+		if (turn1 && currentEdge != null) currentEdge.paintEdge(g, true);
+		else if (currentEdge != null) currentEdge.paintEdge(g, true);
 		for (int i = 0; i < m + 1; i++) {
 			for (int j = 0; j < n + 1; j++) {;
 				g.setColor(Color.gray);

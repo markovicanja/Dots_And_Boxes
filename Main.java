@@ -13,20 +13,12 @@ import java.awt.Insets;
 import javax.swing.AbstractListModel;
 import javax.swing.ImageIcon;
 import javax.swing.ListSelectionModel;
-import javax.swing.JSpinner;
-import javax.swing.SpinnerNumberModel;
-import javax.swing.JScrollBar;
 import javax.swing.JSlider;
-import javax.swing.border.BevelBorder;
-import java.awt.Color;
-import javax.swing.border.MatteBorder;
 import javax.swing.border.TitledBorder;
 import java.awt.Font;
 import javax.swing.UIManager;
-import javax.swing.JProgressBar;
 import java.awt.Choice;
 import javax.swing.JButton;
-import java.awt.Toolkit;
 import java.awt.event.*;
 import javax.swing.JTextField;
 
@@ -37,13 +29,14 @@ public class Main extends JFrame implements ActionListener {
 	private JList list1, list2;
 	private Choice choice1, choice2;
 	private static Font font = new Font("Algerian", Font.PLAIN, 15);
-	private JTextField pathText;
+	private JTextField readDirectoryText;
 	private JTextField depthText;
+	private JTextField writeDirectoryText;
 
 	public Main() {
 		setTitle("Dots and Boxes");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setSize(1000,700);
+		setSize(1000,750);
 //		setSize(1000,700);
 		this.setLocationRelativeTo(null);
 		JPanel mainPanel = new JPanel();
@@ -53,10 +46,10 @@ public class Main extends JFrame implements ActionListener {
 		setContentPane(mainPanel);
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		GridBagLayout gbl_contentPane = new GridBagLayout();
-		gbl_contentPane.columnWidths = new int[]{0, 0, 0, 0, 0, 0, 0, 0};
-		gbl_contentPane.rowHeights = new int[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-		gbl_contentPane.columnWeights = new double[]{0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 1.0, Double.MIN_VALUE};
-		gbl_contentPane.rowWeights = new double[]{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0, Double.MIN_VALUE};
+		gbl_contentPane.columnWidths = new int[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+		gbl_contentPane.rowHeights = new int[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+		gbl_contentPane.columnWeights = new double[]{0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 1.0, 0.0, 1.0, Double.MIN_VALUE};
+		gbl_contentPane.rowWeights = new double[]{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, Double.MIN_VALUE};
 		contentPane.setLayout(gbl_contentPane);
 		
 		JLabel imageLabel = new JLabel(new ImageIcon(getClass().getResource("DBimage.jpg")));
@@ -172,6 +165,9 @@ public class Main extends JFrame implements ActionListener {
 		gbc_lblPlayer2.gridy = 6;
 		contentPane.add(lblPlayer2, gbc_lblPlayer2);
 		
+		JButton startButton = new JButton("Start");
+		startButton.addActionListener(this);
+		
 		list2 = new JList();
 		list2.setVisibleRowCount(2);
 		list2.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -193,9 +189,6 @@ public class Main extends JFrame implements ActionListener {
 		gbc_list2.gridx = 2;
 		gbc_list2.gridy = 6;
 		contentPane.add(list2, gbc_list2);
-		
-		JButton startButton = new JButton("Start");
-		startButton.addActionListener(this);
 		
 		choice2 = new Choice();
 		choice2.setFont(font);
@@ -227,24 +220,43 @@ public class Main extends JFrame implements ActionListener {
 		contentPane.add(depthText, gbc_depthText);
 		depthText.setColumns(30);
 		
-		JLabel pathLabel = new JLabel("File path:");
-		pathLabel.setFont(font);
-		GridBagConstraints gbc_pathLabel = new GridBagConstraints();
-		gbc_pathLabel.anchor = GridBagConstraints.EAST;
-		gbc_pathLabel.insets = new Insets(0, 0, 5, 5);
-		gbc_pathLabel.gridx = 1;
-		gbc_pathLabel.gridy = 10;
-		contentPane.add(pathLabel, gbc_pathLabel);
+		JLabel readDirectoryLabel = new JLabel("Read from file:");
+		readDirectoryLabel.setFont(font);
+		GridBagConstraints gbc_readDirectoryLabel = new GridBagConstraints();
+		gbc_readDirectoryLabel.anchor = GridBagConstraints.EAST;
+		gbc_readDirectoryLabel.insets = new Insets(0, 0, 5, 5);
+		gbc_readDirectoryLabel.gridx = 1;
+		gbc_readDirectoryLabel.gridy = 9;
+		contentPane.add(readDirectoryLabel, gbc_readDirectoryLabel);
 		
-		pathText = new JTextField();
-		pathText.setText("C:\\Users\\Anja\\eclipse-workspace\\DotsAndBoxes\\src\\etf\\dotsandboxes\\ma170420d\\Test.txt");
-		GridBagConstraints gbc_pathText = new GridBagConstraints();
-		gbc_pathText.insets = new Insets(0, 0, 5, 5);
-		gbc_pathText.fill = GridBagConstraints.HORIZONTAL;
-		gbc_pathText.gridx = 2;
-		gbc_pathText.gridy = 10;
-		contentPane.add(pathText, gbc_pathText);
-		pathText.setColumns(30);
+		readDirectoryText = new JTextField();
+		readDirectoryText.setText("C:\\Users\\Anja\\eclipse-workspace\\DotsAndBoxes\\src\\etf\\dotsandboxes\\ma170420d\\Test.txt");
+		GridBagConstraints gbc_readDirectoryText = new GridBagConstraints();
+		gbc_readDirectoryText.anchor = GridBagConstraints.WEST;
+		gbc_readDirectoryText.insets = new Insets(0, 0, 5, 5);
+		gbc_readDirectoryText.gridx = 2;
+		gbc_readDirectoryText.gridy = 9;
+		contentPane.add(readDirectoryText, gbc_readDirectoryText);
+		readDirectoryText.setColumns(30);
+		
+		JLabel writeDirectoryLabel = new JLabel("Write in file:");
+		writeDirectoryLabel.setFont(font);
+		GridBagConstraints gbc_writeDirectoryLabel = new GridBagConstraints();
+		gbc_writeDirectoryLabel.anchor = GridBagConstraints.EAST;
+		gbc_writeDirectoryLabel.insets = new Insets(0, 0, 5, 5);
+		gbc_writeDirectoryLabel.gridx = 1;
+		gbc_writeDirectoryLabel.gridy = 10;
+		contentPane.add(writeDirectoryLabel, gbc_writeDirectoryLabel);
+		
+		writeDirectoryText = new JTextField();
+		writeDirectoryText.setText("C:\\Users\\Anja\\eclipse-workspace\\DotsAndBoxes\\src\\etf\\dotsandboxes\\ma170420d\\write.txt");
+		GridBagConstraints gbc_writeDirectoryText = new GridBagConstraints();
+		gbc_writeDirectoryText.anchor = GridBagConstraints.WEST;
+		gbc_writeDirectoryText.insets = new Insets(0, 0, 5, 5);
+		gbc_writeDirectoryText.gridx = 2;
+		gbc_writeDirectoryText.gridy = 10;
+		contentPane.add(writeDirectoryText, gbc_writeDirectoryText);
+		writeDirectoryText.setColumns(30);
 		startButton.setForeground(UIManager.getColor("Button.foreground"));
 		startButton.setBackground(UIManager.getColor("Button.background"));
 		startButton.setFont(font);
@@ -252,7 +264,7 @@ public class Main extends JFrame implements ActionListener {
 		gbc_startButton.anchor = GridBagConstraints.NORTH;
 		gbc_startButton.insets = new Insets(0, 0, 5, 5);
 		gbc_startButton.gridx = 1;
-		gbc_startButton.gridy = 11;
+		gbc_startButton.gridy = 14;
 		contentPane.add(startButton, gbc_startButton);
 	}
 	
@@ -265,15 +277,16 @@ public class Main extends JFrame implements ActionListener {
 		String difficulty1 = choice1.getSelectedItem();
 		String difficulty2 = choice2.getSelectedItem();
 		
-		String path = pathText.getText();
-		FileRead fr = null;
-		if (!path.equals("")) {
-			fr = new FileRead(path);
-			boolean ok = fr.read();
+		String readPath = readDirectoryText.getText();
+		String writePath = writeDirectoryText.getText();
+		FileIO fio = null;
+		if (!readPath.equals("")) {
+			fio = new FileIO(readPath, writePath);
+			boolean ok = fio.read();
 			if (!ok) return;
 		}
 		
-		new GamePlay(m, n, player1, player2, difficulty1, difficulty2, fr);
+		new GamePlay(m, n, player1, player2, difficulty1, difficulty2, fio);
 		this.setVisible(false);
 	}
 	
