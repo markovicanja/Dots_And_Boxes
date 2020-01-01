@@ -2,7 +2,7 @@ package etf.dotsandboxes.ma170420d;
 
 import java.awt.*;
 import javax.swing.*;
-import etf.dotsandboxes.ma170420d.FileIO.Pair;
+import etf.dotsandboxes.ma170420d.Board.Edge;
 import java.awt.event.*;
 import java.util.ArrayList;
 
@@ -13,6 +13,7 @@ public class GamePlay extends JFrame {
 	private Board board;  
 	private JLabel player1Label, player2Label, score1Label, score2Label;
 	private FileIO fileIO;
+	private Player player = null;
 	
 	public GamePlay(int m, int n, String player1, String player2, String diff1, String diff2, FileIO fileio) {
 		super("Dots and boxes");
@@ -30,12 +31,14 @@ public class GamePlay extends JFrame {
 		if (!fileIO.getReadDirectory().equals("")) {
 			ArrayList<String> moves = fileIO.getMoves();
 			for (String move : moves) {
-				Pair pair =  fileIO.hashMap.get(move);
-				board.makeMove(pair.getEdge(), pair.getI(), pair.getJ());
+				Edge edge = fileIO.hashMap.get(move);
+				board.makeMove(edge, edge.getI(), edge.getJ());
 			}
 		}
 		setVisible(true);
 //		if (player1.equals("Human") && player2.equals("Human")) ako nijedan nije human zabrani misa
+		if (player1.equals("Computer") || player2.equals("Computer")) 
+			player = new Player(diff1, diff2, board, m, n);
 		addWindowListener(new WindowAdapter() {
 			public void windowClosing(WindowEvent e) {
 				dispose();

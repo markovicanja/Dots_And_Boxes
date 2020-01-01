@@ -47,10 +47,20 @@ public class Board extends Canvas {
 		private int x, y;
 		private boolean horizontal, filled = false;
 		private Color color;
+		private int i, j;
 		
-		public Edge(int xx, int yy, boolean h) {
+		public Edge(int xx, int yy, boolean h, int i, int j) {
 			x = xx; y = yy; horizontal = h;
+			this.i = i; this.j = j;
 		}	
+		
+		public int getI() {
+			return i;
+		}
+		
+		public int getJ() {
+			return j;
+		}
 		
 		public void fillEdge() {
 			filled = true;
@@ -104,8 +114,8 @@ public class Board extends Canvas {
 		tiles = new Tile[m][n];
 		for (int i = 0; i < m + 1; i++) { 
 			for (int j = 0; j < n + 1; j++) {
-				if (j < n) horizontal[i][j] = new Edge(x + r, y, true);
-				if (i < m) vertical[i][j] = new Edge(x, y + r, false);
+				if (j < n) horizontal[i][j] = new Edge(x + r, y, true, i, j);
+				if (i < m) vertical[i][j] = new Edge(x, y + r, false, i, j);
 				if (i < m && j < n) tiles[i][j] = new Tile(x, y);
 				x += dx;
 			}	
@@ -140,6 +150,14 @@ public class Board extends Canvas {
 				}
 			}
 		});
+	}
+	
+	public Edge[][] getHorizontal() {
+		return horizontal;
+	}
+	
+	public Edge[][] getVertical() {
+		return vertical;
 	}
 	
 	public int colorTile(Edge edge, int i, int j) {
@@ -191,7 +209,8 @@ public class Board extends Canvas {
 			}
 			turn1 = !turn1;
 			turn2 = !turn2;
-		}		
+		}
+		this.repaint();
 		if (turn1) gamePlay.setScore(true, scoreNum);
 		else gamePlay.setScore(false, scoreNum);
 	}

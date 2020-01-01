@@ -279,9 +279,8 @@ public class Main extends JFrame implements ActionListener {
 		
 		String readPath = readDirectoryText.getText();
 		String writePath = writeDirectoryText.getText();
-		FileIO fio = null;
+		FileIO fio = new FileIO(readPath, writePath);
 		if (!readPath.equals("")) {
-			fio = new FileIO(readPath, writePath);
 			boolean ok = fio.read();
 			if (!ok) return;
 		}
