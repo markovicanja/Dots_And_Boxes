@@ -208,10 +208,10 @@ public class Board extends Canvas {
 				if (gamePlay.status == Status.PLAYING1) {
 					gamePlay.player1().pauseThread();
 					gamePlay.player2().continueThread();
+					if (gamePlay.player2().isBot()) gamePlay.mouseEnabled = false;
+					else gamePlay.mouseEnabled = true;
+					gamePlay.status = Status.PLAYING2;
 				}
-				gamePlay.status = Status.PLAYING2;
-				if (gamePlay.player2().isBot()) gamePlay.mouseEnabled = false;
-				else gamePlay.mouseEnabled = true;
 			}
 			else {
 				currentColor = blue;
@@ -219,10 +219,10 @@ public class Board extends Canvas {
 				if (gamePlay.status == Status.PLAYING2) {
 					gamePlay.player2().pauseThread();
 					gamePlay.player1().continueThread();
+					if (gamePlay.player1().isBot()) gamePlay.mouseEnabled = false;
+					else gamePlay.mouseEnabled = true;
+					gamePlay.status = Status.PLAYING1;
 				}
-				gamePlay.status = Status.PLAYING1;
-				if (gamePlay.player1().isBot()) gamePlay.mouseEnabled = false;
-				else gamePlay.mouseEnabled = true;
 			}
 			turn1 = !turn1;
 			turn2 = !turn2;

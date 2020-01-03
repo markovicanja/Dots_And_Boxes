@@ -35,7 +35,7 @@ public class EndWindow extends JFrame {
 		setVisible(true);
 		addWindowListener(new WindowAdapter() {
 			public void windowClosing(WindowEvent e) {
-				dispose();
+				dispose(); //ugasi sve niti
 			}
 		});
 	}	
