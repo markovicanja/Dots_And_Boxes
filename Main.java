@@ -270,8 +270,8 @@ public class Main extends JFrame implements ActionListener {
 	
 	@Override
 	public void actionPerformed(ActionEvent ae) {
-		int m = (int)slider1.getValue();
-		int n = (int)slider2.getValue();
+		int m = (int)slider2.getValue();
+		int n = (int)slider1.getValue();
 		String player1 = (String)list1.getSelectedValue();
 		String player2 = (String)list2.getSelectedValue();
 		String difficulty1 = choice1.getSelectedItem();

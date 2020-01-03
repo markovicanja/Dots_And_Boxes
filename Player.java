@@ -4,36 +4,49 @@ import etf.dotsandboxes.ma170420d.Board.Edge;
 
 public class Player extends Thread {
 	private Board board;
-private int m, n;
+	private boolean isBot;
+	private GameSolver player;
+	private boolean working = false;
 	
-	public Player(String diff1, String diff2, Board board, int m, int n) {
+	public Player(String ply, String diff, Board board, int m, int n) {
 		this.board = board;
-		this.m = m;
-		this.n = n;
-		this.start();
+		if (ply.equals("Computer")) isBot = true;
+		else isBot = false;
+		if (diff.equals("Easy")) player = new Beginner(board.getHorizontal(), board.getVertical(), m, n);
+		else if (diff.equals("Medium")) player = new Medium(board.getHorizontal(), board.getVertical(), m, n);
+		else if (diff.equals("Hard")) player = new Competitive(board.getHorizontal(), board.getVertical(), m, n);
+		
+		if (isBot) this.start();
 	}
-	//stani, kreni, synchornized to sve dodaj
 	
 	public void run() {
-		//sad ovde postavim tezine za odredjenje igrace
-		Beginner beginner1 = new Beginner(board.getHorizontal(), board.getVertical(), m, n);
-		Beginner beginner2 = new Beginner(board.getHorizontal(), board.getVertical(), m, n);
 		Edge edge = null;
-		while(true) {
-			edge = beginner1.getNextMove();
-			if (edge == null) break;
-			board.makeMove(edge, edge.getI(), edge.getJ());
-			try {
-				Thread.sleep(1000);
-			} catch (InterruptedException e) {
+		try {
+			while(!interrupted()) {
+				synchronized(this) { if (!working) wait(); }
+				Thread.sleep(1500);
+				edge = player.getNextMove();
+				if (edge == null) break;
+				board.makeMove(edge, edge.getI(), edge.getJ());
 			}
-			edge = beginner2.getNextMove();
-			if (edge == null) break;
-			board.makeMove(edge, edge.getI(), edge.getJ());
-			try {
-				Thread.sleep(1000);
-			} catch (InterruptedException e) {
-			}
+		} catch (InterruptedException e) {
 		}
+	}
+	
+	public synchronized void continueThread() {
+		working = true;
+		notify();
+	}
+	
+	public void pauseThread() {
+		working = false;
+	}
+	
+	public void stopThread() {
+		interrupt();
+	}
+	
+	public boolean isBot() {
+		return isBot;
 	}
 }

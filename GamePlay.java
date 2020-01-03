@@ -13,7 +13,10 @@ public class GamePlay extends JFrame {
 	private Board board;  
 	private JLabel player1Label, player2Label, score1Label, score2Label;
 	private FileIO fileIO;
-	private Player player = null;
+	private Player player1 = null, player2 = null;
+	public boolean mouseEnabled = false;
+	public Status status = Status.INIT;
+	public enum Status { INIT, PLAYING1, PLAYING2 };
 	
 	public GamePlay(int m, int n, String player1, String player2, String diff1, String diff2, FileIO fileio) {
 		super("Dots and boxes");
@@ -24,10 +27,16 @@ public class GamePlay extends JFrame {
 			this.m = fileIO.getM();
 			this.n = fileIO.getN();
 		}
-		setSize((this.m + 1) * 100 + 20, (this.n + 1) * 100);
+		int width = this.n <= 3 ? 400 : (this.n) * 100;
+		int height = (this.m + 1) * 100 + 50;
+		setSize(width, height);
 		this.setLocationRelativeTo(null);
 		addComponents();
-		fileIO.write(""+this.m+" "+this.n);
+		
+		this.player1 = new Player(player1, diff1, board, this.m, this.n);
+		this.player2 = new Player(player2, diff2, board, this.m, this.n);
+		
+		fileIO.write("" + this.m + " " + this.n);
 		if (!fileIO.getReadDirectory().equals("")) {
 			ArrayList<String> moves = fileIO.getMoves();
 			for (String move : moves) {
@@ -36,14 +45,26 @@ public class GamePlay extends JFrame {
 			}
 		}
 		setVisible(true);
-//		if (player1.equals("Human") && player2.equals("Human")) ako nijedan nije human zabrani misa
-		if (player1.equals("Computer") || player2.equals("Computer")) 
-			player = new Player(diff1, diff2, board, m, n);
+		
+		this.player1.continueThread();
+		if (player1.equals("Human") || player2.equals("Human"))
+			mouseEnabled = true;
+		
+		status = Status.PLAYING1;
+		
 		addWindowListener(new WindowAdapter() {
 			public void windowClosing(WindowEvent e) {
 				dispose();
 			}
 		}); 
+	}
+	
+	public Player player1() {
+		return this.player1;
+	}
+	
+	public Player player2() {
+		return this.player2;
 	}
 	
 	public void addComponents() {

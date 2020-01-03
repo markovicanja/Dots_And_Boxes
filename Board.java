@@ -3,6 +3,8 @@ package etf.dotsandboxes.ma170420d;
 import java.awt.*;
 import java.awt.event.*;
 
+import etf.dotsandboxes.ma170420d.GamePlay.Status;
+
 public class Board extends Canvas {
 	private int m, n;
 	private boolean turn1 = true, turn2 = false;
@@ -124,6 +126,7 @@ public class Board extends Canvas {
 		if (gamePlay.getFileIO() != null) gamePlay.getFileIO().makeHashMap(horizontal, vertical);
 		this.addMouseListener(new MouseAdapter() {
 			public void mouseClicked(MouseEvent e) {
+				if (!gamePlay.mouseEnabled) return;
 				int x = e.getX();
 				int y = e.getY();
 				boolean found = false;
@@ -202,10 +205,24 @@ public class Board extends Canvas {
 			if (turn1) {
 				currentColor = red;
 				gamePlay.enableLables(false);
+				if (gamePlay.status == Status.PLAYING1) {
+					gamePlay.player1().pauseThread();
+					gamePlay.player2().continueThread();
+				}
+				gamePlay.status = Status.PLAYING2;
+				if (gamePlay.player2().isBot()) gamePlay.mouseEnabled = false;
+				else gamePlay.mouseEnabled = true;
 			}
 			else {
 				currentColor = blue;
 				gamePlay.enableLables(true);
+				if (gamePlay.status == Status.PLAYING2) {
+					gamePlay.player2().pauseThread();
+					gamePlay.player1().continueThread();
+				}
+				gamePlay.status = Status.PLAYING1;
+				if (gamePlay.player1().isBot()) gamePlay.mouseEnabled = false;
+				else gamePlay.mouseEnabled = true;
 			}
 			turn1 = !turn1;
 			turn2 = !turn2;
