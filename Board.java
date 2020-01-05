@@ -56,6 +56,12 @@ public class Board extends Canvas {
 			this.i = i; this.j = j;
 		}	
 		
+		public Edge clone() { //jel ovo neophodno?
+			Edge e = new Edge(x, y, horizontal, i, j);
+			e.setFilled(filled, color);
+			return e;
+		}
+		
 		public int getI() {
 			return i;
 		}
@@ -161,6 +167,10 @@ public class Board extends Canvas {
 	
 	public Edge[][] getVertical() {
 		return vertical;
+	}
+	
+	public GamePlay getGamePlay() {
+		return gamePlay;
 	}
 	
 	public int colorTile(Edge edge, int i, int j) {

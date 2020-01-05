@@ -12,13 +12,14 @@ public class GamePlay extends JFrame {
 	private static Color blue = new Color(0, 204, 255), red = new Color(255, 0, 0);
 	private Board board;  
 	private JLabel player1Label, player2Label, score1Label, score2Label;
+	private int score1 = 0, score2 = 0;
 	private FileIO fileIO;
 	private Player player1 = null, player2 = null;
 	public boolean mouseEnabled = false;
 	public Status status = Status.INIT;
 	public enum Status { INIT, PLAYING1, PLAYING2 };
 	
-	public GamePlay(int m, int n, String player1, String player2, String diff1, String diff2, FileIO fileio) {
+	public GamePlay(int m, int n, String player1, String player2, String diff1, String diff2, FileIO fileio, int maxDepth) {
 		super("Dots and boxes");
 		this.m = m; 
 		this.n = n;
@@ -33,8 +34,8 @@ public class GamePlay extends JFrame {
 		this.setLocationRelativeTo(null);
 		addComponents();
 		
-		this.player1 = new Player(player1, diff1, board, this.m, this.n);
-		this.player2 = new Player(player2, diff2, board, this.m, this.n);
+		this.player1 = new Player(player1, diff1, board, this.m, this.n, maxDepth);
+		this.player2 = new Player(player2, diff2, board, this.m, this.n, maxDepth);
 		
 		fileIO.write("" + this.m + " " + this.n);
 		if (!fileIO.getReadDirectory().equals("")) {
@@ -57,6 +58,14 @@ public class GamePlay extends JFrame {
 				dispose();
 			}
 		}); 
+	}
+	
+	public int getBlueScore() {
+		return score1;
+	}
+	
+	public int getRedScore() {
+		return score2;
 	}
 	
 	public Player player1() {
@@ -115,11 +124,15 @@ public class GamePlay extends JFrame {
 	}
 	
 	public void setScore(boolean scored1, int num) {
-		int score1 = Integer.parseInt(score1Label.getText());
-		int score2 = Integer.parseInt(score2Label.getText());
 		int winner = 0;
-		if (scored1) score1Label.setText("" + (score1 += num));
-		else score2Label.setText("" + (score2 += num));
+		if (scored1) {
+			score1 += num;
+			score1Label.setText("" + score1);
+		}
+		else {
+			score2 += num;
+			score2Label.setText("" + score2);
+		}
 		
 		if (score1 + score2 == m * n) {
 			if (score1 > score2) winner = 1;

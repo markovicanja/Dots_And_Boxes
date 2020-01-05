@@ -8,13 +8,13 @@ public class Player extends Thread {
 	private GameSolver player;
 	private boolean working = false;
 	
-	public Player(String ply, String diff, Board board, int m, int n) {
+	public Player(String ply, String diff, Board board, int m, int n, int maxDepth) {
 		this.board = board;
 		if (ply.equals("Computer")) isBot = true;
 		else isBot = false;
 		if (diff.equals("Easy")) player = new Beginner(board.getHorizontal(), board.getVertical(), m, n);
-		else if (diff.equals("Medium")) player = new Medium(board.getHorizontal(), board.getVertical(), m, n);
-		else if (diff.equals("Hard")) player = new Competitive(board.getHorizontal(), board.getVertical(), m, n);
+		else if (diff.equals("Medium")) player = new Medium(board, m, n, maxDepth);
+		else if (diff.equals("Hard")) player = new Competitive(board, m, n, maxDepth);
 		
 		if (isBot) this.start();
 	}
@@ -24,7 +24,7 @@ public class Player extends Thread {
 		try {
 			while(!interrupted()) {
 				synchronized(this) { if (!working) wait(); }
-				Thread.sleep(1500);
+				Thread.sleep(1000);
 				edge = player.getNextMove();
 				if (edge == null) break;
 				board.makeMove(edge, edge.getI(), edge.getJ());

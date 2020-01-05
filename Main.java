@@ -230,7 +230,7 @@ public class Main extends JFrame implements ActionListener {
 		contentPane.add(readDirectoryLabel, gbc_readDirectoryLabel);
 		
 		readDirectoryText = new JTextField();
-		readDirectoryText.setText("C:\\Users\\Anja\\eclipse-workspace\\DotsAndBoxes\\src\\etf\\dotsandboxes\\ma170420d\\Test.txt");
+		//readDirectoryText.setText("C:\\Users\\Anja\\eclipse-workspace\\DotsAndBoxes\\src\\etf\\dotsandboxes\\ma170420d\\Test.txt");
 		GridBagConstraints gbc_readDirectoryText = new GridBagConstraints();
 		gbc_readDirectoryText.anchor = GridBagConstraints.WEST;
 		gbc_readDirectoryText.insets = new Insets(0, 0, 5, 5);
@@ -276,6 +276,13 @@ public class Main extends JFrame implements ActionListener {
 		String player2 = (String)list2.getSelectedValue();
 		String difficulty1 = choice1.getSelectedItem();
 		String difficulty2 = choice2.getSelectedItem();
+		String depth = depthText.getText();
+		int maxDepth = 0;
+		try {
+			maxDepth = Integer.parseInt(depth);
+		} catch(NumberFormatException e) {
+			maxDepth = 2;
+		}
 		
 		String readPath = readDirectoryText.getText();
 		String writePath = writeDirectoryText.getText();
@@ -285,7 +292,7 @@ public class Main extends JFrame implements ActionListener {
 			if (!ok) return;
 		}
 		
-		new GamePlay(m, n, player1, player2, difficulty1, difficulty2, fio);
+		new GamePlay(m, n, player1, player2, difficulty1, difficulty2, fio, maxDepth);
 		this.setVisible(false);
 	}
 	
