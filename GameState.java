@@ -13,33 +13,52 @@ public class GameState {
 	private ArrayList<Edge> availableOptions = new ArrayList<>();
 	private int index = 0;
 	private int m, n;
-	private Board board;
+//	private Board board;
 	private Color color;
+	private static int posid = 0;
+	private int id;
+	private int blueScore = 0, redScore = 0;
 	
-	public GameState(Edge[][] horizontal , Edge[][] vertical, Edge played, PlayerType type, int m, int n, Board board, Color color) {
+	public GameState(Edge[][] horizontal , Edge[][] vertical, Edge played, PlayerType type, int m, int n, Color color, int blueScore, int redScore) {
 		this.horizontal = copyMatrix(horizontal, m + 1, n); 
 		this.vertical = copyMatrix(vertical, m, n + 1);
 		
+		if (played == null) posid = 0; //obrisi ovo
+		id = posid++;
+		
+		this.blueScore = blueScore;
+		this.redScore = redScore;
+		
 		if (played != null) {
-			if (played.isHorizontal()) this.horizontal[played.getI()][played.getJ()].fillEdge();
-			else this.vertical[played.getI()][played.getJ()].fillEdge();
+			if (played.isHorizontal()) {
+				(playedEdge = this.horizontal[played.getI()][played.getJ()]).fillEdge();
+			}
+			else {
+				(playedEdge = this.vertical[played.getI()][played.getJ()]).fillEdge();
+			}
 		}
+		if (playedEdge != null) setScore();
 		
-		playedEdge = played;
-		this.board = board;
+//		this.board = board;
 		this.color = color;
-		
-		for (int i = 0; i < m + 1; i++) { 
-			for (int j = 0; j < n + 1; j++) {
-				if (j < n && !horizontal[i][j].isFilled() && numberOfEdgesAroundTile(horizontal[i][j]) != 2) 
-					availableOptions.add(horizontal[i][j]);
-				if (i < m && !vertical[i][j].isFilled() && numberOfEdgesAroundTile(vertical[i][j]) != 2) 
-					availableOptions.add(vertical[i][j]);
-			}	
-		}		
-		Collections.shuffle(availableOptions);
-		this.type = type;
 		this.m = m; this.n = n;
+		this.type = type;
+
+		for (int i = 0; i < m + 1; i++)
+			for (int j = 0; j < n + 1; j++) {
+				if (j < n && !this.horizontal[i][j].isFilled() && !isThirdEdge(this.horizontal[i][j])) 
+					availableOptions.add(this.horizontal[i][j]);
+				if (i < m && !this.vertical[i][j].isFilled() && !isThirdEdge(this.vertical[i][j])) 
+					availableOptions.add(this.vertical[i][j]);
+			}
+		
+//		System.out.println(this.id);
+//		for (Edge e:availableOptions) {
+//			System.out.println((e.isHorizontal()?"horizontal ":"vertical ") + e.getI() + " "+ e.getJ());
+//		}
+//		System.out.println("");
+		
+		Collections.shuffle(availableOptions);
 	}
 	
 	private Edge[][] copyMatrix(Edge[][] matrix, int m, int n) { 
@@ -51,8 +70,8 @@ public class GameState {
 		return newMatrix;
 	}
 	
-	private int numberOfEdgesAroundTile(Edge e) {
-		int num = 0, maxNum = 0;
+	private boolean isThirdEdge(Edge e) {
+		int num = 0;
 		int i = e.getI();
 		int j = e.getJ();
 		if (e.isHorizontal()) {
@@ -60,15 +79,14 @@ public class GameState {
 				if (horizontal[i + 1][j].isFilled()) num++;
 				if (vertical[i][j].isFilled()) num++;
 				if (vertical[i][j + 1].isFilled()) num++;
-				if (maxNum < num) maxNum = num;
-				num = 0;
+				if (num == 2) return true;
 			}
 			if (i - 1 >= 0) {
+				num = 0;
 				if (horizontal[i - 1][j].isFilled()) num++;
 				if (vertical[i - 1][j].isFilled()) num++;
 				if (vertical[i - 1][j + 1].isFilled()) num++;
-				if (maxNum < num) maxNum = num;
-				num = 0;
+				if (num == 2) return true;
 			}
 		}
 		else {
@@ -76,18 +94,17 @@ public class GameState {
 				if (vertical[i][j + 1].isFilled()) num++;
 				if (horizontal[i][j].isFilled()) num++;
 				if (horizontal[i + 1][j].isFilled()) num++;
-				if (maxNum < num) maxNum = num;
-				num = 0;
+				if (num == 2) return true;
 			}
 			if (j - 1 >= 0) {
+				num = 0;
 				if (vertical[i][j - 1].isFilled()) num++;
 				if (horizontal[i][j - 1].isFilled()) num++;
 				if (horizontal[i + 1][j - 1].isFilled()) num++;
-				if (maxNum < num) maxNum = num;
-				num = 0;
+				if (num == 2) return true;
 			}
 		}
-		return maxNum;
+		return false;
 	}
 	
 	public boolean isMaxPlayer() {
@@ -102,19 +119,41 @@ public class GameState {
 		return (availableOptions.size() == 0);
 	}
 	
+	public void setScore() {
+		int scoreNum = 0;
+		int i = playedEdge.getI();
+		int j = playedEdge.getJ();
+		if (playedEdge.isHorizontal()) {
+			if (i + 1 <= m && horizontal[i + 1][j].isFilled() && vertical[i][j].isFilled() && vertical[i][j + 1].isFilled())
+				scoreNum++;
+			if (i - 1 >= 0 && horizontal[i - 1][j].isFilled() && vertical[i - 1][j].isFilled() && vertical[i - 1][j + 1].isFilled())
+				scoreNum++;
+		}
+		else {
+			if (j + 1 <= n && vertical[i][j + 1].isFilled() && horizontal[i][j].isFilled() && horizontal[i + 1][j].isFilled())
+				scoreNum++;
+			if (j - 1 >= 0 && vertical[i][j - 1].isFilled() && horizontal[i][j - 1].isFilled() && horizontal[i + 1][j - 1].isFilled())
+				scoreNum++;
+		}
+		if (this.color == Color.blue) blueScore += scoreNum;
+		else redScore += scoreNum;
+		System.out.println("scoreNum "+scoreNum);
+	}
+	
 	public int heuristic() {
 		int value;
-		GamePlay gamePlay = board.getGamePlay();
-		int blueScore = gamePlay.getBlueScore();
-		int redScore =  gamePlay.getRedScore();
+//		GamePlay gamePlay = board.getGamePlay();
+//		int blueScore = gamePlay.getBlueScore();
+//		int redScore =  gamePlay.getRedScore();
 		
         if (color == Color.blue) value = blueScore - redScore;
         else value = redScore - blueScore;
         
+        System.out.println(blueScore+ " : "+ redScore + " "+ this.id);
         return value;
 	}
 	
-	public GameState createChild() {
+	public GameState createChild() { 
 		Edge newEdge = availableOptions.get(index++);
 		
 		PlayerType newType = PlayerType.MIN;
@@ -122,7 +161,7 @@ public class GameState {
 		Color newColor = Color.red;
 		if (color == Color.red) newColor = Color.blue;
 		
-		GameState newState = new GameState(horizontal, vertical, newEdge, newType, m, n, board, newColor);
+		GameState newState = new GameState(horizontal, vertical, newEdge, newType, m, n, newColor, blueScore, redScore);
 		return newState;
 	}
 	
@@ -131,6 +170,6 @@ public class GameState {
 	}
 	
 	public boolean hasNextMove() {
-		return index < availableOptions.size(); 
+		return (index < availableOptions.size()); 
 	}
 }

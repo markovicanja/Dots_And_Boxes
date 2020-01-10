@@ -281,7 +281,7 @@ public class Main extends JFrame implements ActionListener {
 		try {
 			maxDepth = Integer.parseInt(depth);
 		} catch(NumberFormatException e) {
-			maxDepth = 2;
+			maxDepth = 3;
 		}
 		
 		String readPath = readDirectoryText.getText();

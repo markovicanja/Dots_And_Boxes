@@ -23,9 +23,13 @@ public class Medium extends GameSolver {
 		if (edge != null) return edge;
 		
 		Color color = Color.red;
+		
 		if (board.getGamePlay().status == Status.PLAYING1) color = Color.blue;
 		
-		GameState rootState = new GameState(horizontal, vertical, null, PlayerType.MAX, m, n, board, color);
+		int blueScore = board.getGamePlay().getBlueScore();
+		int redScore = board.getGamePlay().getRedScore();
+		
+		GameState rootState = new GameState(horizontal, vertical, null, PlayerType.MAX, m, n, color, blueScore, redScore);
 		bestState = rootState;
 		minimaxAlphaBeta(rootState, maxDepth, 0, alpha, beta);
 		if (bestState.getEdge() != null) {
@@ -35,6 +39,7 @@ public class Medium extends GameSolver {
 			if (e.isHorizontal()) return (board.getHorizontal())[i][j];
 			else return (board.getVertical())[i][j];
 		}
+		//ovo bi sad trebalo da se desava u gameState
 		if (bestState.getEdge() == null && super.edges.size() != 0) 
 			return super.edges.remove(0);
 		return null;

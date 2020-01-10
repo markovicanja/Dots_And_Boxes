@@ -56,7 +56,7 @@ public class Board extends Canvas {
 			this.i = i; this.j = j;
 		}	
 		
-		public Edge clone() { //jel ovo neophodno?
+		public Edge clone() { 
 			Edge e = new Edge(x, y, horizontal, i, j);
 			e.setFilled(filled, color);
 			return e;
