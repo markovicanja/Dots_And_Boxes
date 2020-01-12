@@ -32,6 +32,8 @@ public class Competitive extends GameSolver {
 //        else
 //            value -= cThree * board.getBoxCount(3) - cTwo * board.getBoxCount(2);
 //        return value
+		
+		//bolja heuristika, i pravljenje reusable stabla, gde samo odsecam grane koje sam vec koristila
 		return 0;
 	}
 }

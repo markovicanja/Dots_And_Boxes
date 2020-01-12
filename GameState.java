@@ -10,16 +10,17 @@ public class GameState {
 	private Edge playedEdge = null;
 	public enum PlayerType { MIN, MAX };
 	private PlayerType type;
-	private ArrayList<Edge> availableOptions = new ArrayList<>();
-	private int index = 0;
+	private ArrayList<Edge> availableOptions = new ArrayList<>(), forRootState;
+	private int index = 0, level;
 	private int m, n;
 //	private Board board;
 	private Color color;
 	private static int posid = 0;
-	private int id;
+	public int id;
 	private int blueScore = 0, redScore = 0;
+	private boolean scored = false, parentScored = false, hasChild = false;
 	
-	public GameState(Edge[][] horizontal , Edge[][] vertical, Edge played, PlayerType type, int m, int n, Color color, int blueScore, int redScore) {
+	public GameState(Edge[][] horizontal , Edge[][] vertical, Edge played, PlayerType type, int m, int n, Color color, int blueScore, int redScore, boolean parentScored, int level) {
 		this.horizontal = copyMatrix(horizontal, m + 1, n); 
 		this.vertical = copyMatrix(vertical, m, n + 1);
 		
@@ -28,6 +29,12 @@ public class GameState {
 		
 		this.blueScore = blueScore;
 		this.redScore = redScore;
+		this.parentScored = parentScored;
+		this.level = level;
+		
+		if (level == 0) {
+			forRootState = new ArrayList<>();
+		}
 		
 		if (played != null) {
 			if (played.isHorizontal()) {
@@ -37,26 +44,26 @@ public class GameState {
 				(playedEdge = this.vertical[played.getI()][played.getJ()]).fillEdge();
 			}
 		}
-		if (playedEdge != null) setScore();
 		
-//		this.board = board;
 		this.color = color;
 		this.m = m; this.n = n;
 		this.type = type;
 
+		if (playedEdge != null) setScore();
+		
 		for (int i = 0; i < m + 1; i++)
 			for (int j = 0; j < n + 1; j++) {
-				if (j < n && !this.horizontal[i][j].isFilled() && !isThirdEdge(this.horizontal[i][j])) 
-					availableOptions.add(this.horizontal[i][j]);
-				if (i < m && !this.vertical[i][j].isFilled() && !isThirdEdge(this.vertical[i][j])) 
-					availableOptions.add(this.vertical[i][j]);
+				if (j < n && !this.horizontal[i][j].isFilled()) {
+						availableOptions.add(this.horizontal[i][j]);
+						if (level == 0 && !isThirdEdge(this.horizontal[i][j]))
+							forRootState.add(this.horizontal[i][j]);
+				}
+				if (i < m && !this.vertical[i][j].isFilled()) { 
+						availableOptions.add(this.vertical[i][j]);
+						if (level == 0 && !isThirdEdge(this.vertical[i][j]))
+							forRootState.add(this.vertical[i][j]);
+				}
 			}
-		
-//		System.out.println(this.id);
-//		for (Edge e:availableOptions) {
-//			System.out.println((e.isHorizontal()?"horizontal ":"vertical ") + e.getI() + " "+ e.getJ());
-//		}
-//		System.out.println("");
 		
 		Collections.shuffle(availableOptions);
 	}
@@ -137,31 +144,72 @@ public class GameState {
 		}
 		if (this.color == Color.blue) blueScore += scoreNum;
 		else redScore += scoreNum;
-		System.out.println("scoreNum "+scoreNum);
+		if (scoreNum > 0) this.scored = true;
+	}
+	
+	public int getBoxCount(int numberOfEdges) {
+		int num = 0;
+		for (int i = 0; i < m; i++) {
+			for (int j = 0; j < n; j++) {
+				int cnt = 0;
+				if (horizontal[i][j].isFilled()) cnt++;
+				if (vertical[i][j].isFilled()) cnt++;
+				if (horizontal[i + 1][j].isFilled()) cnt++;
+				if (vertical[i][j + 1].isFilled()) cnt++;
+				if (cnt == numberOfEdges) num++;
+			}
+		}
+		return num;
 	}
 	
 	public int heuristic() {
-		int value;
-//		GamePlay gamePlay = board.getGamePlay();
-//		int blueScore = gamePlay.getBlueScore();
-//		int redScore =  gamePlay.getRedScore();
+		if (playedEdge == null) return 0;
+		int value, score;
+		final int scoreCoeff = 20, threeEdgeCoeff = 15, twoEdgeCoeff = 1;
 		
-        if (color == Color.blue) value = blueScore - redScore;
-        else value = redScore - blueScore;
-        
-        System.out.println(blueScore+ " : "+ redScore + " "+ this.id);
+		if (color == Color.blue)
+			score = blueScore - redScore; // ako je skorovao opet isti igrac igra, pa se po njemu racuna score
+		else
+			score = redScore - blueScore;
+//		if (!scored)
+//			score = 0 - score; // ako nije skorovao onda se rezultat obrnuto racuna za drugog igraca
+
+		if (type == PlayerType.MAX) {
+			value = scoreCoeff * score + threeEdgeCoeff * getBoxCount(3) - twoEdgeCoeff * getBoxCount(2);
+			if (parentScored) value += threeEdgeCoeff;
+//			value += threeEdgeCoeff * numOfThirdAddedFromRoot;
+//			if (scored) value = Integer.MIN_VALUE;
+		} else {
+			value = scoreCoeff * score - threeEdgeCoeff * getBoxCount(3) + twoEdgeCoeff * getBoxCount(2);
+			if (parentScored) value += threeEdgeCoeff;
+//			value -= threeEdgeCoeff * numOfThirdAddedFromRoot;
+//			if (scored) value = Integer.MAX_VALUE;
+		}
+//			if ((type == PlayerType.MAX && !parentScored) || (type == PlayerType.MIN && parentScored))
+//				value = scoreCoeff * score + threeEdgeCoeff * getBoxCount(3) - twoEdgeCoeff * getBoxCount(2);
+//			else 
+//				value = scoreCoeff * score - threeEdgeCoeff * getBoxCount(3) + twoEdgeCoeff * getBoxCount(2);
+		
+//        System.out.println(value+ " "+ this.id);
         return value;
 	}
 	
 	public GameState createChild() { 
-		Edge newEdge = availableOptions.get(index++);
+		Edge newEdge = null;
+		if (level == 0 && forRootState.size() > 0) {
+			newEdge = forRootState.remove(0);
+			hasChild = true;
+		}
+		else if (!hasChild) newEdge = availableOptions.get(index++);
 		
 		PlayerType newType = PlayerType.MIN;
 		if (type == PlayerType.MIN) newType = PlayerType.MAX;
+//		if (this.scored) newType = this.type;
 		Color newColor = Color.red;
 		if (color == Color.red) newColor = Color.blue;
+//		if (this.scored) newColor = this.color;
 		
-		GameState newState = new GameState(horizontal, vertical, newEdge, newType, m, n, newColor, blueScore, redScore);
+		GameState newState = new GameState(horizontal, vertical, newEdge, newType, m, n, newColor, blueScore, redScore, scored, level + 1);
 		return newState;
 	}
 	
@@ -170,6 +218,15 @@ public class GameState {
 	}
 	
 	public boolean hasNextMove() {
-		return (index < availableOptions.size()); 
+		if (level == 0 && hasChild) return index < forRootState.size();
+		else return index < availableOptions.size();
+	}
+	
+	@Override
+	public String toString() {
+		if(playedEdge.isHorizontal()) {
+			return "H("+playedEdge.getI()+","+playedEdge.getJ()+")";
+		}
+		return "V("+playedEdge.getI()+","+playedEdge.getJ()+")";
 	}
 }

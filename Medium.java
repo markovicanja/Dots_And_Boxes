@@ -29,26 +29,32 @@ public class Medium extends GameSolver {
 		int blueScore = board.getGamePlay().getBlueScore();
 		int redScore = board.getGamePlay().getRedScore();
 		
-		GameState rootState = new GameState(horizontal, vertical, null, PlayerType.MAX, m, n, color, blueScore, redScore);
+		GameState rootState = new GameState(horizontal, vertical, null, PlayerType.MAX, m, n, color, blueScore, redScore, false, 0);
 		bestState = rootState;
-		minimaxAlphaBeta(rootState, maxDepth, 0, alpha, beta);
-		if (bestState.getEdge() != null) {
-			Edge e = bestState.getEdge();	
-			int i = e.getI();
-			int j = e.getJ();
-			if (e.isHorizontal()) return (board.getHorizontal())[i][j];
-			else return (board.getVertical())[i][j];
-		}
+		int bestVal = minimaxAlphaBeta(rootState, maxDepth, 0, alpha, beta);
+//		if (bestState.getEdge() == null) {
+//			rootState = new GameState(horizontal, vertical, null, PlayerType.MAX, m, n, color, blueScore, redScore, true);
+//			bestState = rootState;
+//			minimaxAlphaBeta(rootState, maxDepth, 0, alpha, beta);
+//			System.out.println("choosed " + bestState.heuristic());
+//		}
+		if (bestState.getEdge() == null) return null;
+		Edge e = bestState.getEdge();	
+		int i = e.getI();
+		int j = e.getJ();
+		if (e.isHorizontal()) return (board.getHorizontal())[i][j];
+		else return (board.getVertical())[i][j];
+		
 		//ovo bi sad trebalo da se desava u gameState
-		if (bestState.getEdge() == null && super.edges.size() != 0) 
-			return super.edges.remove(0);
-		return null;
+//		if (bestState.getEdge() == null && super.edges.size() != 0) {
+//			return super.edges.remove(0);
+//		}
 	}
 	
 	private int minimaxAlphaBeta(GameState currentState, int maxDepth, int currentDepth, int alpha, int beta) {
 		if(currentState.isTerminalState() || currentDepth == maxDepth) {
 			return currentState.heuristic();
-		}		
+		}	
 		int bestValue;
 		if(currentState.isMaxPlayer()) bestValue = Integer.MIN_VALUE;
 		else bestValue = Integer.MAX_VALUE;
@@ -60,13 +66,13 @@ public class Medium extends GameSolver {
 			
 			if(currentState.isMaxPlayer() && currentValue > bestValue) {
 				bestValue = currentValue;
-				bestState = currentState;
+				if(currentDepth == 0) bestState = newState;
 				if(bestValue >= beta) return bestValue;
 				alpha = Math.max(alpha, bestValue);
 			}
 			else if(currentState.isMinPlayer() && currentValue < bestValue) {
 				bestValue = currentValue;
-				bestState = currentState;
+				if(currentDepth == 0) bestState = newState;
 				if(bestValue <= alpha) return bestValue;
 				beta = Math.min(beta, bestValue);
 			}
