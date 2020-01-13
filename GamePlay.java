@@ -44,14 +44,23 @@ public class GamePlay extends JFrame {
 				Edge edge = fileIO.hashMap.get(move);
 				board.makeMove(edge, edge.getI(), edge.getJ());
 			}
+			if (board.isTurn1()) {
+				status = Status.PLAYING1;
+				this.player1.continueThread();
+			}
+			else {
+				status = Status.PLAYING2;
+				this.player2.continueThread();
+			}
+		}
+		else {
+			this.player1.continueThread();
+			status = Status.PLAYING1;
 		}
 		setVisible(true);
 		
-		this.player1.continueThread();
 		if (player1.equals("Human") || player2.equals("Human"))
 			mouseEnabled = true;
-		
-		status = Status.PLAYING1;
 		
 		addWindowListener(new WindowAdapter() {
 			public void windowClosing(WindowEvent e) {

@@ -161,6 +161,10 @@ public class Board extends Canvas {
 		});
 	}
 	
+	public boolean isTurn1() {
+		return turn1;
+	}
+	
 	public Edge[][] getHorizontal() {
 		return horizontal;
 	}

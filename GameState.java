@@ -164,35 +164,36 @@ public class GameState {
 	
 	public int heuristic() {
 		if (playedEdge == null) return 0;
-		int value, score;
+		int value, score = 0;
 		final int scoreCoeff = 20, threeEdgeCoeff = 15, twoEdgeCoeff = 1;
 		
 		if (color == Color.blue)
-			score = blueScore - redScore; // ako je skorovao opet isti igrac igra, pa se po njemu racuna score
+			score = blueScore - redScore; 
 		else
 			score = redScore - blueScore;
-//		if (!scored)
-//			score = 0 - score; // ako nije skorovao onda se rezultat obrnuto racuna za drugog igraca
-
-		if (type == PlayerType.MAX) {
-			value = scoreCoeff * score + threeEdgeCoeff * getBoxCount(3) - twoEdgeCoeff * getBoxCount(2);
-			if (parentScored) value += threeEdgeCoeff;
-//			value += threeEdgeCoeff * numOfThirdAddedFromRoot;
-//			if (scored) value = Integer.MIN_VALUE;
-		} else {
-			value = scoreCoeff * score - threeEdgeCoeff * getBoxCount(3) + twoEdgeCoeff * getBoxCount(2);
-			if (parentScored) value += threeEdgeCoeff;
+		 return score;
+	}
+		
+//		
+//
+//		if (type == PlayerType.MAX) {
+//			value = scoreCoeff * score + threeEdgeCoeff * getBoxCount(3) - twoEdgeCoeff * getBoxCount(2);
+//			if (parentScored) value += threeEdgeCoeff;
+////			value += threeEdgeCoeff * numOfThirdAddedFromRoot;
+////			if (scored) value = Integer.MIN_VALUE;
+//		} else {
+//			value = scoreCoeff * score - threeEdgeCoeff * getBoxCount(3) + twoEdgeCoeff * getBoxCount(2);
+//			if (parentScored) value += threeEdgeCoeff;
 //			value -= threeEdgeCoeff * numOfThirdAddedFromRoot;
 //			if (scored) value = Integer.MAX_VALUE;
-		}
+//		}
 //			if ((type == PlayerType.MAX && !parentScored) || (type == PlayerType.MIN && parentScored))
 //				value = scoreCoeff * score + threeEdgeCoeff * getBoxCount(3) - twoEdgeCoeff * getBoxCount(2);
 //			else 
 //				value = scoreCoeff * score - threeEdgeCoeff * getBoxCount(3) + twoEdgeCoeff * getBoxCount(2);
 		
 //        System.out.println(value+ " "+ this.id);
-        return value;
-	}
+       
 	
 	public GameState createChild() { 
 		Edge newEdge = null;
@@ -204,10 +205,9 @@ public class GameState {
 		
 		PlayerType newType = PlayerType.MIN;
 		if (type == PlayerType.MIN) newType = PlayerType.MAX;
-//		if (this.scored) newType = this.type;
 		Color newColor = Color.red;
 		if (color == Color.red) newColor = Color.blue;
-//		if (this.scored) newColor = this.color;
+		if (scored) newColor = color;
 		
 		GameState newState = new GameState(horizontal, vertical, newEdge, newType, m, n, newColor, blueScore, redScore, scored, level + 1);
 		return newState;

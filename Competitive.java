@@ -1,11 +1,20 @@
 package etf.dotsandboxes.ma170420d;
 
+import java.awt.Color;
 import etf.dotsandboxes.ma170420d.Board.Edge;
+import etf.dotsandboxes.ma170420d.GamePlay.Status;
+import etf.dotsandboxes.ma170420d.GameState.PlayerType;
 
 public class Competitive extends GameSolver {
+	private GameState bestState = null;
 	private int maxDepth;
+	private int alpha = Integer.MIN_VALUE, beta = Integer.MAX_VALUE;
 	private Board board;
 
+	//moguce optimizacije: praveljenje reusable stabla gde samo odsecam cvorove koje sam
+	//vec odigrala, bolja heuristika, brojanje lanaca 
+	//samo da ne pravi odma kockicu ako postoji
+	
 	public Competitive(Board board, int m, int n, int depth) {
 		super(board.getHorizontal(), board.getVertical(), m, n);
 		maxDepth = depth;	
@@ -17,23 +26,4 @@ public class Competitive extends GameSolver {
 		return null;
 	}
 	
-	private int heuristic() {
-//		final int scoreCoeff = 20, threeEdgeCoeff = 15, twoEdgeCoeff = 1;
-//		int value;
-//		GamePlay gamePlay = board.getGamePlay();
-//		int blueScore = gamePlay.getBlueScore();
-//		int redScore =  gamePlay.getRedScore();
-//        if (gamePlay.status == Status.PLAYING1) //igra plavi igrac
-//            value = scoreCoeff * redScore - scoreCoeff * blueScore;
-//        else
-//            value = scoreCoeff * blueScore - scoreCoeff * redScore;
-//        if (referenceColor == color)
-//            value += cThree * board.getBoxCount(3) - cTwo * board.getBoxCount(2);
-//        else
-//            value -= cThree * board.getBoxCount(3) - cTwo * board.getBoxCount(2);
-//        return value
-		
-		//bolja heuristika, i pravljenje reusable stabla, gde samo odsecam grane koje sam vec koristila
-		return 0;
-	}
 }
