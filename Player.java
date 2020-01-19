@@ -7,9 +7,11 @@ public class Player extends Thread {
 	private boolean isBot;
 	private GameSolver player;
 	private boolean working = false;
+	private int seconds;
 	
-	public Player(String ply, String diff, Board board, int m, int n, int maxDepth) {
+	public Player(String ply, String diff, Board board, int m, int n, int maxDepth, int seconds) {
 		this.board = board;
+		this.seconds = seconds;
 		if (ply.equals("Computer")) isBot = true;
 		else isBot = false;
 		if (diff.equals("Easy")) player = new Beginner(board.getHorizontal(), board.getVertical(), m, n);
@@ -24,7 +26,7 @@ public class Player extends Thread {
 		try {
 			while(!interrupted()) {
 				synchronized(this) { if (!working) wait(); }
-				Thread.sleep(1000);
+				Thread.sleep(seconds);
 				edge = player.getNextMove();
 				if (edge == null) break;
 				board.makeMove(edge, edge.getI(), edge.getJ());

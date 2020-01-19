@@ -11,6 +11,7 @@ import javax.swing.JLabel;
 import javax.swing.JList;
 import java.awt.Insets;
 import javax.swing.AbstractListModel;
+import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
 import javax.swing.ListSelectionModel;
 import javax.swing.JSlider;
@@ -21,6 +22,7 @@ import java.awt.Choice;
 import javax.swing.JButton;
 import java.awt.event.*;
 import javax.swing.JTextField;
+import javax.swing.JRadioButton;
 
 public class Main extends JFrame implements ActionListener {
 
@@ -32,6 +34,7 @@ public class Main extends JFrame implements ActionListener {
 	private JTextField readDirectoryText;
 	private JTextField depthText;
 	private JTextField writeDirectoryText;
+	private JRadioButton radioButtonStepByStep, radioButtonExecute;
 
 	public Main() {
 		setTitle("Dots and Boxes");
@@ -47,9 +50,9 @@ public class Main extends JFrame implements ActionListener {
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		GridBagLayout gbl_contentPane = new GridBagLayout();
 		gbl_contentPane.columnWidths = new int[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-		gbl_contentPane.rowHeights = new int[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+		gbl_contentPane.rowHeights = new int[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 		gbl_contentPane.columnWeights = new double[]{0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 1.0, 0.0, 1.0, Double.MIN_VALUE};
-		gbl_contentPane.rowWeights = new double[]{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, Double.MIN_VALUE};
+		gbl_contentPane.rowWeights = new double[]{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, Double.MIN_VALUE};
 		contentPane.setLayout(gbl_contentPane);
 		
 		JLabel imageLabel = new JLabel(new ImageIcon(getClass().getResource("DBimage.jpg")));
@@ -257,6 +260,25 @@ public class Main extends JFrame implements ActionListener {
 		gbc_writeDirectoryText.gridy = 10;
 		contentPane.add(writeDirectoryText, gbc_writeDirectoryText);
 		writeDirectoryText.setColumns(30);
+		
+		radioButtonStepByStep = new JRadioButton("Step by step");
+		radioButtonStepByStep.setSelected(true);
+		radioButtonStepByStep.setFont(new Font("Algerian", Font.PLAIN, 15));
+		GridBagConstraints gbc_radioButtonStepByStep = new GridBagConstraints();
+		gbc_radioButtonStepByStep.anchor = GridBagConstraints.WEST;
+		gbc_radioButtonStepByStep.insets = new Insets(0, 0, 5, 5);
+		gbc_radioButtonStepByStep.gridx = 1;
+		gbc_radioButtonStepByStep.gridy = 12;
+		contentPane.add(radioButtonStepByStep, gbc_radioButtonStepByStep);
+		
+		radioButtonExecute = new JRadioButton("Execute");
+		radioButtonExecute.setFont(new Font("Algerian", Font.PLAIN, 15));
+		GridBagConstraints gbc_radioButtonExecute = new GridBagConstraints();
+		gbc_radioButtonExecute.anchor = GridBagConstraints.WEST;
+		gbc_radioButtonExecute.insets = new Insets(0, 0, 5, 5);
+		gbc_radioButtonExecute.gridx = 1;
+		gbc_radioButtonExecute.gridy = 13;
+		contentPane.add(radioButtonExecute, gbc_radioButtonExecute);
 		startButton.setForeground(UIManager.getColor("Button.foreground"));
 		startButton.setBackground(UIManager.getColor("Button.background"));
 		startButton.setFont(font);
@@ -264,8 +286,13 @@ public class Main extends JFrame implements ActionListener {
 		gbc_startButton.anchor = GridBagConstraints.NORTH;
 		gbc_startButton.insets = new Insets(0, 0, 5, 5);
 		gbc_startButton.gridx = 1;
-		gbc_startButton.gridy = 14;
+		gbc_startButton.gridy = 15;
 		contentPane.add(startButton, gbc_startButton);
+		
+
+		ButtonGroup buttonGroup = new ButtonGroup();
+		buttonGroup.add(radioButtonExecute);
+		buttonGroup.add(radioButtonStepByStep);
 	}
 	
 	@Override
@@ -283,6 +310,10 @@ public class Main extends JFrame implements ActionListener {
 		} catch(NumberFormatException e) {
 			maxDepth = 3;
 		}
+		int seconds = 1000;
+		if (player1.equals("Computer") && player2.equals("Computer") && radioButtonExecute.isSelected()) {
+			seconds = 0;
+		}
 		
 		String readPath = readDirectoryText.getText();
 		String writePath = writeDirectoryText.getText();
@@ -292,7 +323,7 @@ public class Main extends JFrame implements ActionListener {
 			if (!ok) return;
 		}
 		
-		new GamePlay(m, n, player1, player2, difficulty1, difficulty2, fio, maxDepth);
+		new GamePlay(m, n, player1, player2, difficulty1, difficulty2, fio, maxDepth, seconds);
 		this.setVisible(false);
 	}
 	

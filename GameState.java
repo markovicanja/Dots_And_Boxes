@@ -15,22 +15,20 @@ public class GameState {
 	private int m, n;
 //	private Board board;
 	private Color color;
-	private static int posid = 0;
-	public int id;
+//	private static int posid = 0;
+//	public int id;
 	private int blueScore = 0, redScore = 0;
-	private boolean scored = false, parentScored = false, hasChild = false;
+	private boolean scored = false, parentScored = false, hasChild = false, isCompetitive = false;
 	
-	public GameState(Edge[][] horizontal , Edge[][] vertical, Edge played, PlayerType type, int m, int n, Color color, int blueScore, int redScore, boolean parentScored, int level) {
+	public GameState(Edge[][] horizontal , Edge[][] vertical, Edge played, PlayerType type, int m, int n, Color color, int blueScore, int redScore, boolean parentScored, int level, boolean isCompetitive) {
 		this.horizontal = copyMatrix(horizontal, m + 1, n); 
 		this.vertical = copyMatrix(vertical, m, n + 1);
-		
-		if (played == null) posid = 0; //obrisi ovo
-		id = posid++;
 		
 		this.blueScore = blueScore;
 		this.redScore = redScore;
 		this.parentScored = parentScored;
 		this.level = level;
+		this.isCompetitive = isCompetitive;
 		
 		if (level == 0) {
 			forRootState = new ArrayList<>();
@@ -64,7 +62,9 @@ public class GameState {
 							forRootState.add(this.vertical[i][j]);
 				}
 			}
-		
+//		if (isCompetitive) {
+//			availableOptions = getChainEdges();
+//		}
 		Collections.shuffle(availableOptions);
 	}
 	
@@ -76,6 +76,31 @@ public class GameState {
 		}
 		return newMatrix;
 	}
+	
+//	private ArrayList<Edge> getChainEdges() {
+//		ArrayList<Edge> newList = new ArrayList<Board.Edge>();
+//		ArrayList<ArrayList<Edge>> chains = new ArrayList<ArrayList<Edge>>();
+//		
+//		for (Edge e : availableOptions) {
+//			if (e.isHorizontal()) {
+//				int i = e.getI();
+//				int j = e.getJ();
+//				int num = 0;
+//				if (i - 1 >= 0) { //postoji gornja kockica
+//					if (!horizontal[i - 1][j].isFilled()) num++;
+//					if (!vertical[i - 1][j].isFilled()) num++;
+//					if (!horizontal[i - 1][j + 2].isFilled()) num++;
+//				}
+//			}
+//		}
+//		return newList;
+//	}
+//	
+//	private boolean isAvailableOption(Edge e) {
+//		for (Edge edge : availableOptions)
+//			if (edge.equals(e)) return true;
+//		return false;
+//	}
 	
 	private boolean isThirdEdge(Edge e) {
 		int num = 0;
@@ -126,6 +151,10 @@ public class GameState {
 		return (availableOptions.size() == 0);
 	}
 	
+	public boolean isScored() {
+		return scored;
+	}
+	
 	public void setScore() {
 		int scoreNum = 0;
 		int i = playedEdge.getI();
@@ -165,35 +194,24 @@ public class GameState {
 	public int heuristic() {
 		if (playedEdge == null) return 0;
 		int value, score = 0;
-		final int scoreCoeff = 20, threeEdgeCoeff = 15, twoEdgeCoeff = 1;
+//		final int scoreCoeff = 20, threeEdgeCoeff = 15, twoEdgeCoeff = 1;
+//		
 		
 		if (color == Color.blue)
 			score = blueScore - redScore; 
 		else
 			score = redScore - blueScore;
-		 return score;
-	}
+		if (!isCompetitive)  return score;
 		
-//		
-//
 //		if (type == PlayerType.MAX) {
 //			value = scoreCoeff * score + threeEdgeCoeff * getBoxCount(3) - twoEdgeCoeff * getBoxCount(2);
 //			if (parentScored) value += threeEdgeCoeff;
-////			value += threeEdgeCoeff * numOfThirdAddedFromRoot;
-////			if (scored) value = Integer.MIN_VALUE;
 //		} else {
 //			value = scoreCoeff * score - threeEdgeCoeff * getBoxCount(3) + twoEdgeCoeff * getBoxCount(2);
 //			if (parentScored) value += threeEdgeCoeff;
-//			value -= threeEdgeCoeff * numOfThirdAddedFromRoot;
-//			if (scored) value = Integer.MAX_VALUE;
 //		}
-//			if ((type == PlayerType.MAX && !parentScored) || (type == PlayerType.MIN && parentScored))
-//				value = scoreCoeff * score + threeEdgeCoeff * getBoxCount(3) - twoEdgeCoeff * getBoxCount(2);
-//			else 
-//				value = scoreCoeff * score - threeEdgeCoeff * getBoxCount(3) + twoEdgeCoeff * getBoxCount(2);
-		
-//        System.out.println(value+ " "+ this.id);
-       
+		return value = score;	
+	}
 	
 	public GameState createChild() { 
 		Edge newEdge = null;
@@ -207,9 +225,11 @@ public class GameState {
 		if (type == PlayerType.MIN) newType = PlayerType.MAX;
 		Color newColor = Color.red;
 		if (color == Color.red) newColor = Color.blue;
-		if (scored) newColor = color;
+		if (scored) {
+			newColor = color;
+		}
 		
-		GameState newState = new GameState(horizontal, vertical, newEdge, newType, m, n, newColor, blueScore, redScore, scored, level + 1);
+		GameState newState = new GameState(horizontal, vertical, newEdge, newType, m, n, newColor, blueScore, redScore, scored, level + 1, isCompetitive);
 		return newState;
 	}
 	

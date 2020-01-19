@@ -19,7 +19,7 @@ public class GamePlay extends JFrame {
 	public Status status = Status.INIT;
 	public enum Status { INIT, PLAYING1, PLAYING2 };
 	
-	public GamePlay(int m, int n, String player1, String player2, String diff1, String diff2, FileIO fileio, int maxDepth) {
+	public GamePlay(int m, int n, String player1, String player2, String diff1, String diff2, FileIO fileio, int maxDepth, int seconds) {
 		super("Dots and boxes");
 		this.m = m; 
 		this.n = n;
@@ -34,8 +34,8 @@ public class GamePlay extends JFrame {
 		this.setLocationRelativeTo(null);
 		addComponents();
 		
-		this.player1 = new Player(player1, diff1, board, this.m, this.n, maxDepth);
-		this.player2 = new Player(player2, diff2, board, this.m, this.n, maxDepth);
+		this.player1 = new Player(player1, diff1, board, this.m, this.n, maxDepth, seconds);
+		this.player2 = new Player(player2, diff2, board, this.m, this.n, maxDepth, seconds);
 		
 		fileIO.write("" + this.m + " " + this.n);
 		if (!fileIO.getReadDirectory().equals("")) {

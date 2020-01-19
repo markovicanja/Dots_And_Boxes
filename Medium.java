@@ -29,9 +29,9 @@ public class Medium extends GameSolver {
 		int blueScore = board.getGamePlay().getBlueScore();
 		int redScore = board.getGamePlay().getRedScore();
 		
-		GameState rootState = new GameState(horizontal, vertical, null, PlayerType.MAX, m, n, color, blueScore, redScore, false, 0);
+		GameState rootState = new GameState(horizontal, vertical, null, PlayerType.MAX, m, n, color, blueScore, redScore, false, 0, false);
 		bestState = rootState;
-		int bestVal = minimaxAlphaBeta(rootState, maxDepth, 0, alpha, beta);
+		minimaxAlphaBeta(rootState, maxDepth, 0, alpha, beta);
 
 		if (bestState.getEdge() == null) return null;
 		Edge e = bestState.getEdge();	
@@ -42,7 +42,7 @@ public class Medium extends GameSolver {
 	}
 	
 	public int minimaxAlphaBeta(GameState currentState, int maxDepth, int currentDepth, int alpha, int beta) {
-		if(currentState.isTerminalState() || currentDepth == maxDepth) {
+		if(currentDepth == maxDepth || currentState.isTerminalState()) {
 			return currentState.heuristic();
 		}	
 		int bestValue;
