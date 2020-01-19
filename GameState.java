@@ -46,8 +46,11 @@ public class GameState {
 		this.color = color;
 		this.m = m; this.n = n;
 		this.type = type;
-
-		if (playedEdge != null) setScore();
+		
+		int scoreNum = 0;
+		if (playedEdge != null) {
+			scoreNum = setScore(playedEdge);
+		}
 		
 		for (int i = 0; i < m + 1; i++)
 			for (int j = 0; j < n + 1; j++) {
@@ -62,10 +65,33 @@ public class GameState {
 							forRootState.add(this.vertical[i][j]);
 				}
 			}
-//		if (isCompetitive) {
-//			availableOptions = getChainEdges();
-//		}
 		Collections.shuffle(availableOptions);
+		
+		if (scored && isCompetitive) {
+			this.type = this.type == PlayerType.MAX ? PlayerType.MIN : PlayerType.MAX;
+			this.color = this.color == Color.blue ? Color.red : Color.blue;
+			if(this.color == Color.red) {
+				this.blueScore -= scoreNum;
+				this.redScore += scoreNum;
+			} else{
+				this.redScore -= scoreNum;
+				this.blueScore += scoreNum;
+			}
+			
+			Edge e = formSquare(availableOptions);
+			while (e != null) {
+				if (e.isHorizontal()) {
+					(this.horizontal[e.getI()][e.getJ()]).fillEdge();
+				}
+				else {
+					(this.vertical[e.getI()][e.getJ()]).fillEdge();
+				}
+				availableOptions.remove(e);
+				setScore(e);
+				
+				e = formSquare(availableOptions);
+			}
+		}
 	}
 	
 	private Edge[][] copyMatrix(Edge[][] matrix, int m, int n) { 
@@ -77,30 +103,34 @@ public class GameState {
 		return newMatrix;
 	}
 	
-//	private ArrayList<Edge> getChainEdges() {
-//		ArrayList<Edge> newList = new ArrayList<Board.Edge>();
-//		ArrayList<ArrayList<Edge>> chains = new ArrayList<ArrayList<Edge>>();
-//		
-//		for (Edge e : availableOptions) {
-//			if (e.isHorizontal()) {
-//				int i = e.getI();
-//				int j = e.getJ();
-//				int num = 0;
-//				if (i - 1 >= 0) { //postoji gornja kockica
-//					if (!horizontal[i - 1][j].isFilled()) num++;
-//					if (!vertical[i - 1][j].isFilled()) num++;
-//					if (!horizontal[i - 1][j + 2].isFilled()) num++;
-//				}
-//			}
-//		}
-//		return newList;
-//	}
-//	
-//	private boolean isAvailableOption(Edge e) {
-//		for (Edge edge : availableOptions)
-//			if (edge.equals(e)) return true;
-//		return false;
-//	}
+	private Edge formSquare(ArrayList<Edge> edges) {
+		Edge returnEdge = null;
+		for (Edge edge: edges) {
+			int i = edge.getI();
+			int j = edge.getJ();
+			if (edge.isHorizontal()) {
+				if (i + 1 <= m && horizontal[i + 1][j].isFilled() && vertical[i][j].isFilled() && vertical[i][j + 1].isFilled()) {
+					returnEdge = edge;
+					break;
+				}
+				if (i - 1 >= 0 && horizontal[i - 1][j].isFilled() && vertical[i - 1][j].isFilled() && vertical[i - 1][j + 1].isFilled()) {
+					returnEdge = edge;
+					break;
+				}
+			}
+			else {
+				if (j + 1 <= n && vertical[i][j + 1].isFilled() && horizontal[i][j].isFilled() && horizontal[i + 1][j].isFilled()) {
+					returnEdge = edge;
+					break;
+				}
+				if (j - 1 >= 0 && vertical[i][j - 1].isFilled() && horizontal[i][j - 1].isFilled() && horizontal[i + 1][j - 1].isFilled()) {
+					returnEdge = edge;
+					break;
+				}
+			}
+		}
+		return returnEdge;
+	}
 	
 	private boolean isThirdEdge(Edge e) {
 		int num = 0;
@@ -148,6 +178,8 @@ public class GameState {
 	}
 	
 	public boolean isTerminalState() {
+		if (isCompetitive) 
+			return scored;
 		return (availableOptions.size() == 0);
 	}
 	
@@ -155,7 +187,7 @@ public class GameState {
 		return scored;
 	}
 	
-	public void setScore() {
+	public int setScore(Edge playedEdge) {
 		int scoreNum = 0;
 		int i = playedEdge.getI();
 		int j = playedEdge.getJ();
@@ -174,43 +206,20 @@ public class GameState {
 		if (this.color == Color.blue) blueScore += scoreNum;
 		else redScore += scoreNum;
 		if (scoreNum > 0) this.scored = true;
-	}
-	
-	public int getBoxCount(int numberOfEdges) {
-		int num = 0;
-		for (int i = 0; i < m; i++) {
-			for (int j = 0; j < n; j++) {
-				int cnt = 0;
-				if (horizontal[i][j].isFilled()) cnt++;
-				if (vertical[i][j].isFilled()) cnt++;
-				if (horizontal[i + 1][j].isFilled()) cnt++;
-				if (vertical[i][j + 1].isFilled()) cnt++;
-				if (cnt == numberOfEdges) num++;
-			}
-		}
-		return num;
+		
+		return scoreNum;
 	}
 	
 	public int heuristic() {
 		if (playedEdge == null) return 0;
-		int value, score = 0;
-//		final int scoreCoeff = 20, threeEdgeCoeff = 15, twoEdgeCoeff = 1;
-//		
+		int score = 0;
 		
 		if (color == Color.blue)
 			score = blueScore - redScore; 
 		else
 			score = redScore - blueScore;
-		if (!isCompetitive)  return score;
-		
-//		if (type == PlayerType.MAX) {
-//			value = scoreCoeff * score + threeEdgeCoeff * getBoxCount(3) - twoEdgeCoeff * getBoxCount(2);
-//			if (parentScored) value += threeEdgeCoeff;
-//		} else {
-//			value = scoreCoeff * score - threeEdgeCoeff * getBoxCount(3) + twoEdgeCoeff * getBoxCount(2);
-//			if (parentScored) value += threeEdgeCoeff;
-//		}
-		return value = score;	
+		if (type == PlayerType.MIN) score *= -1;
+		return score;	
 	}
 	
 	public GameState createChild() { 
@@ -227,6 +236,7 @@ public class GameState {
 		if (color == Color.red) newColor = Color.blue;
 		if (scored) {
 			newColor = color;
+			newType = type;
 		}
 		
 		GameState newState = new GameState(horizontal, vertical, newEdge, newType, m, n, newColor, blueScore, redScore, scored, level + 1, isCompetitive);

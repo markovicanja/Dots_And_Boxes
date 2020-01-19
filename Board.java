@@ -213,7 +213,12 @@ public class Board extends Canvas {
 		if (turn1) edge.setFilled(true, lightBlue);
 		else edge.setFilled(true, lightRed);
 		currentEdge = edge;
-		gamePlay.getFileIO().write(gamePlay.getFileIO().toStringMap.get(edge));
+		if (edge.isHorizontal()) {
+			gamePlay.getFileIO().write(gamePlay.getFileIO().toStringMap.get(horizontal[i][j]));
+		}
+		else {
+			gamePlay.getFileIO().write(gamePlay.getFileIO().toStringMap.get(vertical[i][j]));
+		}
 		scoreNum = colorTile(edge, i, j);
 		if (!scored) {
 			if (turn1) {

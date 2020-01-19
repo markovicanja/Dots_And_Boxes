@@ -20,27 +20,17 @@ public class FileIO {
 	public Map<String, Edge> hashMap = new HashMap<>();
 	public Map<Edge, String> toStringMap = new HashMap<>();
 	
-//	public class Pair {
-//		private Edge edge;
-//		private int i, j;
-//		public Pair(Edge e, int x, int y) {
-//			edge = e;
-//			i = x; j = y;
-//		}
-//		public Edge getEdge() {
-//			return edge;
-//		}
-//		public int getI() {
-//			return i;
-//		}
-//		public int getJ() {
-//			return j;
-//		}
-//	}
-	
-	public FileIO (String readDirectory, String writeDirectory) {
+	public FileIO (String readDirectory, String writeDirectory, int m, int n) {
 		this.readDirectory = readDirectory;
 		this.writeDirectory = writeDirectory;
+		this.m = m;
+		this.n = n;
+		try {
+			FileWriter fw = new FileWriter(writeDirectory, false);
+			fw.flush();
+			fw.close();
+		} catch (IOException e) {
+		}
 	}
 	
 	public String getReadDirectory() {
@@ -115,17 +105,16 @@ public class FileIO {
 			for (int j = 0; j < n + 1; j++) {
 				if (j < n) {
 					String key = "" + i + letters[j];
-//					Pair pair = new Pair(horizontal[i][j], i, j);
 					hashMap.put(key, horizontal[i][j]);
 					toStringMap.put(horizontal[i][j], key);
 				}
 				if (i < m) {
 					String key = letters[i] + j;
-//					Pair pair = new Pair(vertical[i][j], i, j);
 					hashMap.put(key, vertical[i][j]);
 					toStringMap.put(vertical[i][j], key);
 				}
 			}
 		}
+		int a =0;
 	}
 }

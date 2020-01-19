@@ -23,7 +23,12 @@ public class Competitive extends GameSolver {
 	@Override
 	public Edge getNextMove() {
 		Edge edge = super.formSquare();
-		if (edge != null) return edge;
+		if (edge != null) {
+			int i = edge.getI();
+			int j = edge.getJ();
+			if (edge.isHorizontal()) return (board.getHorizontal())[i][j];
+			else return (board.getVertical())[i][j];
+		}
 		
 		ArrayList<Edge> availableOptions = new ArrayList<>();
 		for (int i = 0; i < m + 1; i++)
@@ -36,7 +41,11 @@ public class Competitive extends GameSolver {
 		
 		if (availableOptions.size() > 0) {
 			Collections.shuffle(availableOptions);
-			return availableOptions.remove(0);
+			Edge e = availableOptions.remove(0);
+			int i = e.getI();
+			int j = e.getJ();
+			if (e.isHorizontal()) return (board.getHorizontal())[i][j];
+			else return (board.getVertical())[i][j];
 		}
 		
 		Color color = Color.red;
@@ -46,12 +55,13 @@ public class Competitive extends GameSolver {
 		int blueScore = board.getGamePlay().getBlueScore();
 		int redScore = board.getGamePlay().getRedScore();
 		
-		GameState rootState = new GameState(horizontal, vertical, null, PlayerType.MAX, m, n, color, blueScore, redScore, false, 0, false);
+		GameState rootState = new GameState(horizontal, vertical, null, PlayerType.MAX, m, n, color, blueScore, redScore, false, 0, true);
 		bestState = rootState;
-		maxDepth = 2;
-		minimaxAlphaBeta(rootState, maxDepth, 0, alpha, beta);
+		maxDepth = 3;
+		int aaaa = minimaxAlphaBeta(rootState, maxDepth, 0, alpha, beta);
 
-		if (bestState.getEdge() == null) return null;
+		if (bestState.getEdge() == null)
+			return null;
 		Edge e = bestState.getEdge();	
 		int i = e.getI();
 		int j = e.getJ();
@@ -60,11 +70,14 @@ public class Competitive extends GameSolver {
 	}
 	
 	public int minimaxAlphaBeta(GameState currentState, int maxDepth, int currentDepth, int alpha, int beta) {
-		if(currentState.isTerminalState()) {
+//		if(currentState.isTerminalState()) {
+//			return currentState.heuristic();
+//		}
+//		else if(currentDepth >= maxDepth && !currentState.isScored()){
+//			return currentState.heuristic();			
+//		}
+		if(currentDepth == maxDepth || currentState.isTerminalState()) {
 			return currentState.heuristic();
-		}
-		else if(currentDepth >= maxDepth && !currentState.isScored()){
-			return currentState.heuristic();			
 		}
 		int bestValue;
 		if(currentState.isMaxPlayer()) bestValue = Integer.MIN_VALUE;
