@@ -11,37 +11,41 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+
+import javax.swing.JTextArea;
+
 import etf.dotsandboxes.ma170420d.Board.Edge;
 
 public class FileIO {
-	private String readDirectory, writeDirectory;
+	private File readFile, writeFile;
 	private int m, n;
+	private JTextArea ta;
 	private ArrayList<String> moves = new ArrayList<>(); 
 	public Map<String, Edge> hashMap = new HashMap<>();
 	public Map<Edge, String> toStringMap = new HashMap<>();
 	
-	public FileIO (String readDirectory, String writeDirectory, int m, int n) {
-		this.readDirectory = readDirectory;
-		this.writeDirectory = writeDirectory;
+	public FileIO (File readFile, File writeFile, int m, int n) {
+		this.readFile = readFile;
+		this.writeFile = writeFile;
 		this.m = m;
 		this.n = n;
-		try {
-			FileWriter fw = new FileWriter(writeDirectory, false);
-			fw.flush();
-			fw.close();
-		} catch (IOException e) {
+		if (writeFile != null) {
+			try {
+				FileWriter fw = new FileWriter(writeFile, false);
+				fw.flush();
+				fw.close();
+			} catch (IOException e) {
+			}
 		}
 	}
 	
-	public String getReadDirectory() {
-		return readDirectory;
+	public File getReadFile() {
+		return readFile;
 	}
 
 	public boolean read() {
-		File file=new File(readDirectory);
 		try {
-			BufferedReader br = new BufferedReader(new FileReader(file));
-			
+			BufferedReader br = new BufferedReader(new FileReader(readFile));
 			String line;
 			if ((line = br.readLine()) != null) {
 				if (line.length() != 3 || line.charAt(1) != ' ') {
@@ -76,8 +80,10 @@ public class FileIO {
 	}
 	
 	public void write(String text) {
+		ta.append(text+"\n");
+		if (writeFile == null) return;
 		try {
-			FileWriter fw = new FileWriter(writeDirectory, true);
+			FileWriter fw = new FileWriter(writeFile, true);
 			BufferedWriter bw = new BufferedWriter(fw);
 			PrintWriter out = new PrintWriter(bw); 
 			out.println(text);
@@ -85,6 +91,10 @@ public class FileIO {
 		} catch (IOException e) {
 			System.err.println("Writing in file error...");
 		}
+	}
+	
+	public void setTextArea(JTextArea ta) {
+		this.ta = ta;
 	}
 
 	public int getM() {
@@ -115,6 +125,5 @@ public class FileIO {
 				}
 			}
 		}
-		int a =0;
 	}
 }

@@ -14,5 +14,4 @@ public class Beginner extends GameSolver {
 		if (edge == null && edges.size() > 0) edge = edges.get(0);
 		return edge;
 	}
-		
 }

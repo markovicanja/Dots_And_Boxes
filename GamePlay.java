@@ -11,6 +11,7 @@ public class GamePlay extends JFrame {
 	private static Font font = new Font("Algerian", Font.PLAIN, 30);
 	private static Color blue = new Color(0, 204, 255), red = new Color(255, 0, 0);
 	private Board board;  
+	private TextAreaClass textAreaClass;
 	private JLabel player1Label, player2Label, score1Label, score2Label;
 	private int score1 = 0, score2 = 0;
 	private FileIO fileIO;
@@ -19,26 +20,59 @@ public class GamePlay extends JFrame {
 	public Status status = Status.INIT;
 	public enum Status { INIT, PLAYING1, PLAYING2 };
 	
+	private class TextAreaClass extends JFrame {	
+		private JTextArea textArea;
+		public TextAreaClass(GamePlay gamePlay, double dx, double dy) {			
+			JLabel lblNewLabel = new JLabel("Played moves:");
+			lblNewLabel.setHorizontalAlignment(SwingConstants.CENTER);
+			lblNewLabel.setFont(new Font("Algerian", Font.PLAIN, 14));
+			lblNewLabel.setBackground(Color.WHITE);
+			getContentPane().add(lblNewLabel, BorderLayout.NORTH);
+			
+			textArea = new JTextArea(10, 10);
+			textArea.setFont(new Font("Algerian", Font.PLAIN, 13));
+			getContentPane().add(textArea, BorderLayout.CENTER);
+			JScrollPane scroll = new JScrollPane(textArea, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+			getContentPane().add(scroll);
+			
+			this.setVisible(true);
+			this.setLocationRelativeTo(null);
+			this.setSize(200, 300);
+			double x = getLocationOnScreen().getX();
+			double y = getLocationOnScreen().getY();
+			x += dx / 2 + 100;
+			y -= dy / 2 - 100;
+			this.setLocation((int)x, (int)y);
+		}
+		public JTextArea getTextArea() {
+			return textArea;
+		}
+	}
+	
 	public GamePlay(int m, int n, String player1, String player2, String diff1, String diff2, FileIO fileio, int maxDepth, int seconds) {
 		super("Dots and boxes");
 		this.m = m; 
 		this.n = n;
 		fileIO = fileio;
-		if (!fileIO.getReadDirectory().equals("")) {
+		if (fileIO.getReadFile() != null) {
 			this.m = fileIO.getM();
 			this.n = fileIO.getN();
 		}
+		
 		int width = this.n <= 3 ? 400 : (this.n) * 100;
 		int height = (this.m + 1) * 100 + 50;
 		setSize(width, height);
 		this.setLocationRelativeTo(null);
 		addComponents();
 		
+		textAreaClass = new TextAreaClass(this, width, height);
+		fileIO.setTextArea(textAreaClass.getTextArea());
+		
 		this.player1 = new Player(player1, diff1, board, this.m, this.n, maxDepth, seconds);
 		this.player2 = new Player(player2, diff2, board, this.m, this.n, maxDepth, seconds);
 		
 		fileIO.write("" + this.m + " " + this.n);
-		if (!fileIO.getReadDirectory().equals("")) {
+		if (fileIO.getReadFile() != null) {
 			ArrayList<String> moves = fileIO.getMoves();
 			for (String move : moves) {
 				Edge edge = fileIO.hashMap.get(move);
@@ -146,8 +180,9 @@ public class GamePlay extends JFrame {
 		if (score1 + score2 == m * n) {
 			if (score1 > score2) winner = 1;
 			else if (score2 > score1) winner = 2;
-			new EndWindow(winner);
-			this.setVisible(false);
+			new EndWindow(winner, player1, player2);
+			textAreaClass.dispose();
+			dispose();
 		}
 	}
 }

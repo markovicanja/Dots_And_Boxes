@@ -13,10 +13,7 @@ public class GameState {
 	private ArrayList<Edge> availableOptions = new ArrayList<>(), forRootState;
 	private int index = 0, level;
 	private int m, n;
-//	private Board board;
 	private Color color;
-//	private static int posid = 0;
-//	public int id;
 	private int blueScore = 0, redScore = 0;
 	private boolean scored = false, parentScored = false, hasChild = false, isCompetitive = false;
 	

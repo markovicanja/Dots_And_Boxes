@@ -19,10 +19,18 @@ import javax.swing.border.TitledBorder;
 import java.awt.Font;
 import javax.swing.UIManager;
 import java.awt.Choice;
+import java.awt.Dimension;
+
 import javax.swing.JButton;
+import javax.swing.JFileChooser;
+
 import java.awt.event.*;
+import java.io.File;
+
 import javax.swing.JTextField;
 import javax.swing.JRadioButton;
+import javax.swing.JCheckBox;
+import javax.swing.JSpinner;
 
 public class Main extends JFrame implements ActionListener {
 
@@ -31,16 +39,15 @@ public class Main extends JFrame implements ActionListener {
 	private JList list1, list2;
 	private Choice choice1, choice2;
 	private static Font font = new Font("Algerian", Font.PLAIN, 15);
-	private JTextField readDirectoryText;
-	private JTextField depthText;
-	private JTextField writeDirectoryText;
 	private JRadioButton radioButtonStepByStep, radioButtonExecute;
+	private JCheckBox readFromFile;
+	private JCheckBox writeToFile;
+	private JSpinner spinner;
 
 	public Main() {
 		setTitle("Dots and Boxes");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setSize(1000,750);
-//		setSize(1000,700);
 		this.setLocationRelativeTo(null);
 		JPanel mainPanel = new JPanel();
 		mainPanel.setLayout(new BorderLayout());
@@ -50,9 +57,9 @@ public class Main extends JFrame implements ActionListener {
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		GridBagLayout gbl_contentPane = new GridBagLayout();
 		gbl_contentPane.columnWidths = new int[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-		gbl_contentPane.rowHeights = new int[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-		gbl_contentPane.columnWeights = new double[]{0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 1.0, 0.0, 1.0, Double.MIN_VALUE};
-		gbl_contentPane.rowWeights = new double[]{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, Double.MIN_VALUE};
+		gbl_contentPane.rowHeights = new int[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+		gbl_contentPane.columnWeights = new double[]{0.0, 0.0, 1.0, 0.0, 1.0, 0.0, 1.0, 0.0, 1.0, Double.MIN_VALUE};
+		gbl_contentPane.rowWeights = new double[]{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, Double.MIN_VALUE};
 		contentPane.setLayout(gbl_contentPane);
 		
 		JLabel imageLabel = new JLabel(new ImageIcon(getClass().getResource("DBimage.jpg")));
@@ -168,9 +175,6 @@ public class Main extends JFrame implements ActionListener {
 		gbc_lblPlayer2.gridy = 6;
 		contentPane.add(lblPlayer2, gbc_lblPlayer2);
 		
-		JButton startButton = new JButton("Start");
-		startButton.addActionListener(this);
-		
 		list2 = new JList();
 		list2.setVisibleRowCount(2);
 		list2.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -214,52 +218,37 @@ public class Main extends JFrame implements ActionListener {
 		gbc_depthLabel.gridy = 8;
 		contentPane.add(depthLabel, gbc_depthLabel);
 		
-		depthText = new JTextField();
-		GridBagConstraints gbc_depthText = new GridBagConstraints();
-		gbc_depthText.anchor = GridBagConstraints.NORTHWEST;
-		gbc_depthText.insets = new Insets(0, 0, 5, 5);
-		gbc_depthText.gridx = 2;
-		gbc_depthText.gridy = 8;
-		contentPane.add(depthText, gbc_depthText);
-		depthText.setColumns(30);
+		ButtonGroup buttonGroup = new ButtonGroup();
 		
-		JLabel readDirectoryLabel = new JLabel("Read from file:");
-		readDirectoryLabel.setFont(font);
-		GridBagConstraints gbc_readDirectoryLabel = new GridBagConstraints();
-		gbc_readDirectoryLabel.anchor = GridBagConstraints.EAST;
-		gbc_readDirectoryLabel.insets = new Insets(0, 0, 5, 5);
-		gbc_readDirectoryLabel.gridx = 1;
-		gbc_readDirectoryLabel.gridy = 9;
-		contentPane.add(readDirectoryLabel, gbc_readDirectoryLabel);
+		spinner = new JSpinner();
+		spinner.setFont(new Font("Algerian", Font.PLAIN, 13));
+		GridBagConstraints gbc_spinner = new GridBagConstraints();
+		gbc_spinner.anchor = GridBagConstraints.WEST;
+		gbc_spinner.insets = new Insets(0, 0, 5, 5);
+		gbc_spinner.gridx = 2;
+		gbc_spinner.gridy = 8;
+		contentPane.add(spinner, gbc_spinner);
+		Dimension d = spinner.getPreferredSize();  
+		d.width = 50;  
+		spinner.setPreferredSize(d);
 		
-		readDirectoryText = new JTextField();
-		//readDirectoryText.setText("C:\\Users\\Anja\\eclipse-workspace\\DotsAndBoxes\\src\\etf\\dotsandboxes\\ma170420d\\Test.txt");
-		GridBagConstraints gbc_readDirectoryText = new GridBagConstraints();
-		gbc_readDirectoryText.anchor = GridBagConstraints.WEST;
-		gbc_readDirectoryText.insets = new Insets(0, 0, 5, 5);
-		gbc_readDirectoryText.gridx = 2;
-		gbc_readDirectoryText.gridy = 9;
-		contentPane.add(readDirectoryText, gbc_readDirectoryText);
-		readDirectoryText.setColumns(30);
+		readFromFile = new JCheckBox("Read form file");
+		readFromFile.setFont(new Font("Algerian", Font.PLAIN, 15));
+		GridBagConstraints gbc_readFromFile = new GridBagConstraints();
+		gbc_readFromFile.anchor = GridBagConstraints.WEST;
+		gbc_readFromFile.insets = new Insets(0, 0, 5, 5);
+		gbc_readFromFile.gridx = 1;
+		gbc_readFromFile.gridy = 9;
+		contentPane.add(readFromFile, gbc_readFromFile);
 		
-		JLabel writeDirectoryLabel = new JLabel("Write in file:");
-		writeDirectoryLabel.setFont(font);
-		GridBagConstraints gbc_writeDirectoryLabel = new GridBagConstraints();
-		gbc_writeDirectoryLabel.anchor = GridBagConstraints.EAST;
-		gbc_writeDirectoryLabel.insets = new Insets(0, 0, 5, 5);
-		gbc_writeDirectoryLabel.gridx = 1;
-		gbc_writeDirectoryLabel.gridy = 10;
-		contentPane.add(writeDirectoryLabel, gbc_writeDirectoryLabel);
-		
-		writeDirectoryText = new JTextField();
-		writeDirectoryText.setText("C:\\Users\\Anja\\eclipse-workspace\\DotsAndBoxes\\src\\etf\\dotsandboxes\\ma170420d\\write.txt");
-		GridBagConstraints gbc_writeDirectoryText = new GridBagConstraints();
-		gbc_writeDirectoryText.anchor = GridBagConstraints.WEST;
-		gbc_writeDirectoryText.insets = new Insets(0, 0, 5, 5);
-		gbc_writeDirectoryText.gridx = 2;
-		gbc_writeDirectoryText.gridy = 10;
-		contentPane.add(writeDirectoryText, gbc_writeDirectoryText);
-		writeDirectoryText.setColumns(30);
+		writeToFile = new JCheckBox("Write to file");
+		writeToFile.setFont(new Font("Algerian", Font.PLAIN, 15));
+		GridBagConstraints gbc_writeToFile = new GridBagConstraints();
+		gbc_writeToFile.anchor = GridBagConstraints.WEST;
+		gbc_writeToFile.insets = new Insets(0, 0, 5, 5);
+		gbc_writeToFile.gridx = 1;
+		gbc_writeToFile.gridy = 10;
+		contentPane.add(writeToFile, gbc_writeToFile);
 		
 		radioButtonStepByStep = new JRadioButton("Step by step");
 		radioButtonStepByStep.setSelected(true);
@@ -268,8 +257,9 @@ public class Main extends JFrame implements ActionListener {
 		gbc_radioButtonStepByStep.anchor = GridBagConstraints.WEST;
 		gbc_radioButtonStepByStep.insets = new Insets(0, 0, 5, 5);
 		gbc_radioButtonStepByStep.gridx = 1;
-		gbc_radioButtonStepByStep.gridy = 12;
+		gbc_radioButtonStepByStep.gridy = 11;
 		contentPane.add(radioButtonStepByStep, gbc_radioButtonStepByStep);
+		buttonGroup.add(radioButtonStepByStep);
 		
 		radioButtonExecute = new JRadioButton("Execute");
 		radioButtonExecute.setFont(new Font("Algerian", Font.PLAIN, 15));
@@ -277,8 +267,12 @@ public class Main extends JFrame implements ActionListener {
 		gbc_radioButtonExecute.anchor = GridBagConstraints.WEST;
 		gbc_radioButtonExecute.insets = new Insets(0, 0, 5, 5);
 		gbc_radioButtonExecute.gridx = 1;
-		gbc_radioButtonExecute.gridy = 13;
+		gbc_radioButtonExecute.gridy = 12;
 		contentPane.add(radioButtonExecute, gbc_radioButtonExecute);
+		buttonGroup.add(radioButtonExecute);
+		
+		JButton startButton = new JButton("Start");
+		startButton.addActionListener(this);
 		startButton.setForeground(UIManager.getColor("Button.foreground"));
 		startButton.setBackground(UIManager.getColor("Button.background"));
 		startButton.setFont(font);
@@ -286,13 +280,8 @@ public class Main extends JFrame implements ActionListener {
 		gbc_startButton.anchor = GridBagConstraints.NORTH;
 		gbc_startButton.insets = new Insets(0, 0, 5, 5);
 		gbc_startButton.gridx = 1;
-		gbc_startButton.gridy = 15;
+		gbc_startButton.gridy = 14;
 		contentPane.add(startButton, gbc_startButton);
-		
-
-		ButtonGroup buttonGroup = new ButtonGroup();
-		buttonGroup.add(radioButtonExecute);
-		buttonGroup.add(radioButtonStepByStep);
 	}
 	
 	@Override
@@ -303,28 +292,40 @@ public class Main extends JFrame implements ActionListener {
 		String player2 = (String)list2.getSelectedValue();
 		String difficulty1 = choice1.getSelectedItem();
 		String difficulty2 = choice2.getSelectedItem();
-		String depth = depthText.getText();
-		int maxDepth = 0;
-		try {
-			maxDepth = Integer.parseInt(depth);
-		} catch(NumberFormatException e) {
-			maxDepth = 3;
-		}
+		int maxDepth = (Integer)spinner.getValue();
 		int seconds = 1000;
 		if (player1.equals("Computer") && player2.equals("Computer") && radioButtonExecute.isSelected()) {
 			seconds = 0;
 		}
+		File readFile = null, writeFile = null;
+		if (readFromFile.isSelected()) {
+			final JFileChooser jfcRead = new JFileChooser();
+			jfcRead.setDialogTitle("Choose reading file");
+			int returnValue = jfcRead.showOpenDialog(null);
+			
+			if (returnValue == JFileChooser.APPROVE_OPTION) {            		
+				readFile = jfcRead.getSelectedFile();
+			}
+		}
 		
-		String readPath = readDirectoryText.getText();
-		String writePath = writeDirectoryText.getText();
-		FileIO fio = new FileIO(readPath, writePath, m, n);
-		if (!readPath.equals("")) {
+		if (writeToFile.isSelected()) {
+			final JFileChooser jfcWrite = new JFileChooser();
+			jfcWrite.setDialogTitle("Choose writing file");
+			int returnValue = jfcWrite.showOpenDialog(null);
+			
+			if (returnValue == JFileChooser.APPROVE_OPTION) {            		
+				writeFile = jfcWrite.getSelectedFile();
+			}
+		}
+		FileIO fio = new FileIO(readFile, writeFile, m, n);
+		
+		if (readFile != null) {
 			boolean ok = fio.read();
 			if (!ok) return;
 		}
 		
 		new GamePlay(m, n, player1, player2, difficulty1, difficulty2, fio, maxDepth, seconds);
-		this.setVisible(false);
+		dispose();
 	}
 	
 	public static void main(String[] args) {
